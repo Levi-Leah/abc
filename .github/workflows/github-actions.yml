@@ -1,5 +1,4 @@
-name: CI/CD for Node.js App on AKS (Fedora)
-
+name: CI/CD for Node.js App on AKS
 on:
   push:
     branches:
