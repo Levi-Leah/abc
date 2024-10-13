@@ -7,11 +7,6 @@ provider "azurerm" {
   tenant_id       = var.tenant_id
 }
 
-# Tell Terraform to use the Azure provider
-provider "azurerm" {
-    features {}  # Required to enable certain features for Azure resources
-}
-
 # Create a Resource Group to hold your resources (network, cluster, etc.)
 resource "azurerm_resource_group" "aks_rg" {
     name     = var.resource_group_name  # Reference the variable for the resource group name
