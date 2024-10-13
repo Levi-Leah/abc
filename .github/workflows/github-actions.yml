@@ -41,18 +41,26 @@ jobs:
       run: terraform init
       working-directory: ./terraform-config
 
+    # Run Terraform plan and check if any changes are needed
     - name: Terraform Plan
-      run: terraform plan
+      id: plan
+      run: terraform plan -out=tfplan -no-color
       working-directory: ./terraform-config
 
+    # Conditionally apply changes only if Terraform plan detects changes
     - name: Terraform Apply
-      run: terraform apply -auto-approve
+      if: steps.plan.outputs.has_changes == 'true'
+      run: terraform apply -auto-approve tfplan
       working-directory: ./terraform-config
 
-    - name: Get Terraform Output
+    # Check if there are any changes in the Terraform plan
+    - name: Check if Plan has Changes
+      id: check_changes
       run: |
-        echo "AKS_RESOURCE_GROUP=$(terraform output -raw aks_resource_group)" >> $GITHUB_ENV
-        echo "AKS_CLUSTER_NAME=$(terraform output -raw aks_cluster_name)" >> $GITHUB_ENV
+        if grep -q 'No changes. Infrastructure is up-to-date.' tfplan; then
+          echo "has_changes=false" >> $GITHUB_ENV
+        else
+          echo "has_changes=true" >> $GITHUB_ENV
       working-directory: ./terraform-config
 
     - name: Get AKS Credentials
