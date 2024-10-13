@@ -2,34 +2,70 @@ provider "azurerm" {
     features {}
 }
 
+##################################################
+# CHECK IF RESOURCES ALREADY EXIST
+##################################################
+
+# Check if the Resource Group already exists
+data "azurerm_resource_group" "existing_rg" {
+  name = var.resource_group_name
+}
+
+# Check if the Virtual Network already exists
+data "azurerm_virtual_network" "existing_vnet" {
+  name                = var.vnet_name
+  resource_group_name = var.resource_group_name
+}
+
+# Check if the Subnet already exists
+data "azurerm_subnet" "existing_subnet" {
+  name                = var.subnet_name
+  resource_group_name = var.resource_group_name
+  virtual_network_name = var.vnet_name
+}
+
+# Check if the AKS Cluster already exists
+data "azurerm_kubernetes_cluster" "existing_aks" {
+  name                = var.aks_cluster_name
+  resource_group_name = var.resource_group_name
+}
+
+##################################################
+# CREATE RESOURCES IF THEY DO NOT EXIST
+##################################################
+
+
 # Create a Resource Group to hold your resources (network, cluster, etc.)
 resource "azurerm_resource_group" "aks_rg" {
-    name     = var.resource_group_name  # Reference the variable for the resource group name
-    location = var.location             # Reference the variable for location
+    count    = length(data.azurerm_resource_group.existing_rg.name) != 0 ? 0 : 1
+    name     = var.resource_group_name
+    location = var.location
 }
 
 # Create a Virtual Network in the resource group
 resource "azurerm_virtual_network" "aks_vnet" {
-    name                = var.vnet_name                # Name of the virtual network
-    address_space       = var.address_space            # IP range for the virtual network
-    location            = azurerm_resource_group.aks_rg.location  # Use the same location as the resource group
-    resource_group_name = azurerm_resource_group.aks_rg.name       # Assign to the created resource group
-}
+    count               = length(data.azurerm_virtual_network.existing_vnet.name) != 0 ? 0 : 1
+    name                = var.vnet_name
+    address_space       = var.address_space
+    location            = azurerm_resource_group.aks_rg.location
+    resource_group_name = azurerm_resource_group.aks_rg.name
 
 # Create a Subnet in the Virtual Network
 resource "azurerm_subnet" "aks_subnet" {
-    name                 = var.subnet_name               # Name of the subnet
-    resource_group_name  = azurerm_resource_group.aks_rg.name  # Assign to the resource group
-    virtual_network_name = azurerm_virtual_network.aks_vnet.name  # Link to the virtual network
-    address_prefixes     = var.subnet_address_prefixes   # IP range for the subnet
+    count               = length(data.azurerm_subnet.existing_subnet.name) != 0 ? 0 : 1
+    name                 = var.subnet_name 
+    resource_group_name  = azurerm_resource_group.aks_rg.name
+    virtual_network_name = azurerm_virtual_network.aks_vnet.name
+    address_prefixes     = var.subnet_address_prefixes
 }
 
-# Create the Azure Kubernetes Service (AKS) Cluster
+# Create the Azure Kubernetes Service AKS Cluster
 resource "azurerm_kubernetes_cluster" "aks_cluster" {
-    name                = var.aks_cluster_name   # Reference the variable for the AKS cluster name
-    location            = var.location           # Use the same location as the resource group
-    resource_group_name = azurerm_resource_group.aks_rg.name  # Assign to the resource group
-    dns_prefix          = var.dns_prefix         # Prefix for DNS names in the cluster
+    count               = length(data.azurerm_kubernetes_cluster.existing_aks.name) != 0 ? 0 : 1
+    name                = var.aks_cluster_name
+    location            = var.location
+    resource_group_name = azurerm_resource_group.aks_rg.name
+    dns_prefix          = var.dns_prefix
     
     default_node_pool {
         name       = "default"                     # Name of the node pool
