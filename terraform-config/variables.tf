@@ -25,7 +25,7 @@ variable "address_space" {
 # Subnet name
 variable "subnet_name" {
     description = "The name of the subnet"
-    default     = "AKS-subnet"
+    default     = "-subnet"
 }
 
 # Address prefix for the subnet
@@ -43,7 +43,7 @@ variable "aks_cluster_name" {
 # DNS prefix for AKS
 variable "dns_prefix" {
     description = "Prefix for DNS names in the AKS cluster"
-    default     = "AKSCluster-AKSResourceGroup"
+    default     = "AKSClust-AKSResourceGroup"
 }
 
 # Node count for the cluster
