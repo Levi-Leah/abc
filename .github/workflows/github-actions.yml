@@ -7,7 +7,7 @@ on:
 
 jobs:
   build-deploy:
-    runs-on: fedora-latest # Use Fedora runner instead of ubuntu because helm is available from the official repo
+    runs-on: ubuntu-latest
 
     env: # Declare environment variables once for the entire job
       ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
@@ -24,13 +24,14 @@ jobs:
       with:
         node-version: 'latest'
 
-    - name: Install dependencies
+    - name: Install npm
       run: npm install
 
     - name: Install kubectl
-      run: |
-        sudo dnf install -y kubectl
-
+      uses: azure/setup-kubectl@v4
+      with:
+        version: 'latest'
+      id: install
 
     - name: Set up Terraform (latest)
       uses: hashicorp/setup-terraform@v1
@@ -46,9 +47,11 @@ jobs:
     - name: Terraform Apply
       run: terraform apply -auto-approve
 
-    - name: Install Helm on Fedora
-      run: |
-        sudo dnf install helm
+    - name: Install Helm
+      uses: azure/setup-helm@v4.2.0
+      with:
+        version: 'latest'
+      id: install
 
     - name: Deploy using Helm
       run: |
