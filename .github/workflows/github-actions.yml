@@ -49,10 +49,22 @@ jobs:
       run: terraform apply -auto-approve
       working-directory: ./terraform-config
 
+    - name: Get Terraform Output
+      run: |
+        echo "AKS_RESOURCE_GROUP=$(terraform output -raw aks_resource_group)" >> $GITHUB_ENV
+        echo "AKS_CLUSTER_NAME=$(terraform output -raw aks_cluster_name)" >> $GITHUB_ENV
+      working-directory: ./terraform-config
+
+    - name: Get AKS Credentials
+      run: az aks get-credentials --resource-group ${{ env.AKS_RESOURCE_GROUP }} --name ${{ env.AKS_CLUSTER_NAME }}
+
     - name: Install Helm
       uses: azure/setup-helm@v4.2.0
       with:
         version: 'latest'
+
+    - name: Get AKS Credentials
+      run: az aks get-credentials --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --name ${{ secrets.AKS_CLUSTER_NAME }}
 
     - name: Deploy using Helm
       run: |
