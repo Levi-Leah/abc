@@ -88,8 +88,8 @@ resource "azurerm_kubernetes_cluster" "aks_cluster" {
         }
 }
 
-# Output the Kubernetes config file (kubeconfig), needed to manage the cluster
+# Output the Kubernetes kubeconfig to manage the cluster
 output "kube_config" {
-    value     = azurerm_kubernetes_cluster.aks_cluster[0].kube_config_raw
+    value     = length(azurerm_kubernetes_cluster.aks_cluster) > 0 ? azurerm_kubernetes_cluster.aks_cluster[0].kube_config_raw : "" #  Output the kube_config only if the AKS cluster was created
     sensitive = true  # Mark this as sensitive because it contains credentials
 }
