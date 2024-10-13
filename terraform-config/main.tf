@@ -9,14 +9,14 @@ provider "azurerm" {
 # Check if the Resource Group already exists
 data "azurerm_resource_group" "existing_rg" {
     name = var.resource_group_name
-    count = try(length(data.azurerm_resource_group.existing_rg.name), 0) != 0 ? 0 : 1
+    count = try(length(data.azurerm_resource_group.existing_rg[count.index].name), 0) != 0 ? 0 : 1
 }
 
 # Check if the Virtual Network already exists
 data "azurerm_virtual_network" "existing_vnet" {
     name                = var.vnet_name
     resource_group_name = var.resource_group_name
-    count = try(length(data.azurerm_virtual_network.existing_vnet.name), 0) != 0 ? 0 : 1
+    count = try(length(data.azurerm_virtual_network.existing_vnet[count.index].name), 0) != 0 ? 0 : 1
 }
 
 # Check if the Subnet already exists
@@ -24,14 +24,14 @@ data "azurerm_subnet" "existing_subnet" {
     name                = var.subnet_name
     resource_group_name = var.resource_group_name
     virtual_network_name = var.vnet_name
-    count = try(length(data.azurerm_subnet.existing_subnet.name), 0) != 0 ? 0 : 1
+    count = try(length(data.azurerm_subnet.existing_subnet[count.index].name), 0) != 0 ? 0 : 1
 }
 
 # Check if the AKS Cluster already exists
 data "azurerm_kubernetes_cluster" "existing_aks" {
     name                = var.aks_cluster_name
     resource_group_name = var.resource_group_name
-    count = try(length(data.azurerm_kubernetes_cluster.existing_aks.name), 0) != 0 ? 0 : 1
+    count = try(length(data.azurerm_kubernetes_cluster.existing_aks[count.index].name), 0) != 0 ? 0 : 1
 }
 
 ##################################################
