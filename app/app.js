@@ -59,4 +59,4 @@ db.run(`
 `);
 
 // Start server
-app.listen(port, () => console.log(`App running on ${port}`));
+app.listen(port, () => console.log(`App is running on ${port}`));
