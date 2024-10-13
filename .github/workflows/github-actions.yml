@@ -48,6 +48,7 @@ jobs:
     - name: Terraform Apply
       run: |
         terraform apply -auto-approve
+        [ -d ~/.kube ] || mkdir ~/.kube
         echo "${{ steps.terraform.outputs.kube_config }}" > ~/.kube/config
       working-directory: ./terraform-config
 
