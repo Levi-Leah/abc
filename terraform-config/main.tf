@@ -47,16 +47,16 @@ resource "azurerm_virtual_network" "aks_vnet" {
     count               = length(data.azurerm_virtual_network.existing_vnet.name) != 0 ? 0 : 1
     name                = var.vnet_name
     address_space       = var.address_space
-    location            = azurerm_resource_group.aks_rg.location
-    resource_group_name = azurerm_resource_group.aks_rg.name
+    location            = azurerm_resource_group.aks_rg[count.index].location # list of resources rather than a single instance and must be refer to it using an index
+    resource_group_name = azurerm_resource_group.aks_rg[count.index].name
 }
 
 # Create a Subnet in the Virtual Network
 resource "azurerm_subnet" "aks_subnet" {
     count               = length(data.azurerm_subnet.existing_subnet.name) != 0 ? 0 : 1
     name                 = var.subnet_name 
-    resource_group_name  = azurerm_resource_group.aks_rg.name
-    virtual_network_name = azurerm_virtual_network.aks_vnet.name
+    resource_group_name  = azurerm_resource_group.aks_rg.name[count.index]
+    virtual_network_name = azurerm_virtual_network.aks_vnet[count.index].name
     address_prefixes     = var.subnet_address_prefixes
 }
 
@@ -65,14 +65,14 @@ resource "azurerm_kubernetes_cluster" "aks_cluster" {
     count               = length(data.azurerm_kubernetes_cluster.existing_aks.name) != 0 ? 0 : 1
     name                = var.aks_cluster_name
     location            = var.location
-    resource_group_name = azurerm_resource_group.aks_rg.name
+    resource_group_name = azurerm_resource_group.aks_rg[count.index].name
     dns_prefix          = var.dns_prefix
     
     default_node_pool {
         name       = "default"                     # Name of the node pool
         node_count = var.node_count                # Number of nodes in the pool
         vm_size    = var.vm_size                   # Size of the virtual machines (nodes)
-        vnet_subnet_id = azurerm_subnet.aks_subnet.id  # Link to the created subnet
+        vnet_subnet_id = azurerm_subnet.aks_subnet[count.index].id  # Link to the created subnet
     }
 
     # Set network profile to avoid the ServiceCidrOverlapExistingSubnetsCidr Error
