@@ -90,6 +90,6 @@ resource "azurerm_kubernetes_cluster" "aks_cluster" {
 
 # Output the Kubernetes config file (kubeconfig), needed to manage the cluster
 output "kube_config" {
-    value     = azurerm_kubernetes_cluster.aks_cluster[count.index].kube_config_raw
+    value     = azurerm_kubernetes_cluster.aks_cluster[count.0].kube_config_raw
     sensitive = true  # Mark this as sensitive because it contains credentials
 }
