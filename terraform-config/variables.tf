@@ -1,9 +1,3 @@
-# Subscription ID
-variable "subscription_id" {
-    description = "Azure subscription ID"
-    default = "25078be9-07d0-4070-a474-1c18b3b6af8c"
-}
-
 # Location for deploying resources
 variable "location" {
     description = "Azure region to deploy resources"
@@ -13,13 +7,13 @@ variable "location" {
 # Resource group name
 variable "resource_group_name" {
     description = "The name of the resource group"
-    default     = "MyResourceGroup"
+    default     = "AKSResourceGroup"
 }
 
 # Virtual network name
 variable "vnet_name" {
     description = "The name of the virtual network"
-    default     = "aks-vnet-33819111"
+    default     = "AKS-vnet"
 }
 
 # Address space for the virtual network
@@ -31,7 +25,7 @@ variable "address_space" {
 # Subnet name
 variable "subnet_name" {
     description = "The name of the subnet"
-    default     = "aks-subnet"
+    default     = "AKS-subnet"
 }
 
 # Address prefix for the subnet
@@ -43,13 +37,13 @@ variable "subnet_address_prefixes" {
 # AKS cluster name
 variable "aks_cluster_name" {
     description = "The name of the AKS cluster"
-    default     = "MyAKSCluster"
+    default     = "AKSCluster"
 }
 
 # DNS prefix for AKS
 variable "dns_prefix" {
     description = "Prefix for DNS names in the AKS cluster"
-    default     = "MyAKSClust-MyResourceGroup-25078b"
+    default     = "AKSCluster-AKSResourceGroup"
 }
 
 # Node count for the cluster

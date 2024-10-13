@@ -2,7 +2,7 @@
 provider "azurerm" {
     features {}  # Required to enable certain features for Azure resources
 
-    subscription_id = var.subscription_id
+    subscription_id = ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 }
 
 # Create a Resource Group to hold your resources (network, cluster, etc.)
