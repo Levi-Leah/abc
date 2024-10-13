@@ -49,6 +49,7 @@ resource "azurerm_virtual_network" "aks_vnet" {
     address_space       = var.address_space
     location            = azurerm_resource_group.aks_rg.location
     resource_group_name = azurerm_resource_group.aks_rg.name
+}
 
 # Create a Subnet in the Virtual Network
 resource "azurerm_subnet" "aks_subnet" {
