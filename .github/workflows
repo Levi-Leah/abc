@@ -1,0 +1,61 @@
+name: CI/CD for Node.js App on AKS (Fedora)
+
+on:
+  push:
+    branches:
+    - main # Run CI/CD when code is merged into the main branch
+
+jobs:
+  build-deploy:
+    runs-on: fedora-latest # Use Fedora runner instead of ubuntu because helm is available from the official repo
+
+    env: # Declare environment variables once for the entire job
+      ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Node.js (latest)
+      uses: actions/setup-node@v2
+      with:
+        node-version: 'latest'
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Install kubectl
+      run: |
+        sudo dnf install -y kubectl
+
+
+    - name: Set up Terraform (latest)
+      uses: hashicorp/setup-terraform@v1
+      with:
+        terraform_version: 'latest'
+
+    - name: Terraform Init
+      run: terraform init
+
+    - name: Terraform Plan
+      run: terraform plan
+
+    - name: Terraform Apply
+      run: terraform apply -auto-approve
+
+    - name: Install Helm on Fedora
+      run: |
+        sudo dnf install helm
+
+    - name: Deploy using Helm
+      run: |
+        helm upgrade --install myapp ./helm-config
+        kubectl get pods --namespace default
+
+    - name: Verify Application
+      run: |
+        kubectl get services
+        kubectl get pods
