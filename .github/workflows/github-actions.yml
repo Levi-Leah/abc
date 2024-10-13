@@ -48,8 +48,9 @@ jobs:
     - name: Terraform Apply
       run: |
         terraform apply -auto-approve
-        [ -d ~/.kube ] || mkdir ~/.kube
+        mkdir -p ~/.kube
         echo "${{ steps.terraform.outputs.kube_config }}" > ~/.kube/config
+        chmod 600 ~/.kube/config
       working-directory: ./terraform-config
 
     - name: Install Helm
