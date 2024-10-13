@@ -63,3 +63,8 @@ variable "service_cidr" {
     description = "IP address for the service CIDR"
     default = "10.30.0.0/16"
 }
+
+variable "dns_service_ip" {
+    description = "IP address for the dns service CIDR"
+    default = "10.30.0.10"
+}

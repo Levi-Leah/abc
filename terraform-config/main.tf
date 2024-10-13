@@ -42,6 +42,7 @@ resource "azurerm_kubernetes_cluster" "aks_cluster" {
     network_profile {
         network_plugin     = "azure"
         service_cidr       = var.service_cidr
+        dns_service_ip     = var.dns_service_ip
     }
     
     # Managed identity for AKS (Azure handles the identity for the cluster)
