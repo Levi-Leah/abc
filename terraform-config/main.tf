@@ -84,7 +84,6 @@ resource "null_resource" "verify_cluster" {
     provisioner "local-exec" {
         command = "kubectl --kubeconfig=${path.module}/kubeconfig get nodes"
         }
-    depends_on = [null_resource.get_kubeconfig]
 }
 
 # Define the Helm release
