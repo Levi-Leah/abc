@@ -7,13 +7,13 @@ variable "location" {
 # Resource group name
 variable "resource_group_name" {
     description = "The name of the resource group"
-    default     = "ABCResourceGroup"
+    default     = "ABC-ResourceGroup"
 }
 
 # Virtual network name
 variable "vnet_name" {
     description = "The name of the virtual network"
-    default     = "ABCvnet"
+    default     = "ABC-vnet"
 }
 
 # Address space for the virtual network
@@ -25,7 +25,7 @@ variable "address_space" {
 # Subnet name
 variable "subnet_name" {
     description = "The name of the subnet"
-    default     = "ABCsubnet"
+    default     = "ABC-subnet"
 }
 
 # Address prefix for the subnet
@@ -37,13 +37,13 @@ variable "subnet_address_prefixes" {
 # AKS cluster name
 variable "aks_cluster_name" {
     description = "The name of the AKS cluster"
-    default     = "ABCCluster"
+    default     = "ABC-Cluster"
 }
 
 # DNS prefix for AKS
 variable "dns_prefix" {
     description = "Prefix for DNS names in the AKS cluster"
-    default     = "ABCCluster-ABCResourceGroup"
+    default     = "ABC-Cluster-ABC-ResourceGroup"
 }
 
 # Node count for the cluster

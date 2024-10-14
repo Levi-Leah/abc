@@ -82,7 +82,7 @@ provider "helm" {
 # Define the Helm release
 resource "helm_release" "nodejs_app" {
     depends_on = [azurerm_kubernetes_cluster.aks_cluster, local_file.kubeconfig]
-    name       = "app_name"
+    name       = "abc"
     chart      = "../helm-config"
     namespace  = "default"
 }
