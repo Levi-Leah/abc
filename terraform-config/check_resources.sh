@@ -7,9 +7,9 @@ RESOURCE_GROUP=$1
 echo $RESOURCE_GROUP
 
 # Check if the resource group exists
-rg_exists=$(az group exists --name "$RESOURCE_GROUP")
+RESOURCE_GROUP_EXISTS=$(az group exists --name "$RESOURCE_GROUP")
 
-# if [[ "$rg_exists" == "true" ]]; then
+# if [[ "$RESOURCE_GROUP_EXISTS" == "true" ]]; then
 #     echo "Resource group $RESOURCE_GROUP already exists. Importing all resources into Terraform..."
 
 #     # Import the resource group

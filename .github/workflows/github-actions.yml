@@ -53,9 +53,6 @@ jobs:
     - name: Terraform Apply
       run: |
         terraform apply -auto-approve
-        mkdir -p ~/.kube
-        echo "${{ steps.terraform.outputs.kube_config }}" > ~/.kube/config
-        chmod 600 ~/.kube/config
       working-directory: ./terraform-config
 
     - name: Azure Login
@@ -65,7 +62,9 @@ jobs:
 
     - name: Write kubeconfig
       run: |
+        mkdir -p ~/.kube
         echo "${{ steps.terraform.outputs.kube_config }}" > ~/.kube/config
+        chmod 600 ~/.kube/config
       working-directory: terraform-config
 
     - name: Install Helm
