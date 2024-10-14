@@ -50,13 +50,11 @@ jobs:
 
     - name: Export kubeconfig File
       run: |
-        export KUBECONFIG=<(terraform output -raw kube_config)
-        echo $KUBECONFIG
-
+        echo "KUBECONFIG=$(terraform output -raw kube_config)" > $GITHUB_ENV
     - name: Deploy Helm
       run: |
-        echo $KUBECONFIGs
-    #     helm upgrade --install nodejs-app ./helm-config \
+        echo ${{ env.KUBECONFIG }}
+        helm upgrade --install nodejs-app ./helm-config
     #     --set image.repository=${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:latest
 
     # - name: Verify Application

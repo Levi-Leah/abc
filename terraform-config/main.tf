@@ -67,7 +67,7 @@ output "kube_config" {
     sensitive = true  # Mark this as sensitive because it contains credentials
 }
 
-resource "local_file" "kubeconfig" {
-    content  = azurerm_kubernetes_cluster.aks_cluster.kube_config_raw
-    filename = "${path.module}/kubeconfig"
-}
+# resource "local_file" "kubeconfig" {
+#     content  = azurerm_kubernetes_cluster.aks_cluster.kube_config_raw
+#     filename = "${path.module}/kubeconfig"
+# }
