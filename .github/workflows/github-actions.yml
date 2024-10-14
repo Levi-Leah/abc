@@ -51,6 +51,7 @@ jobs:
       working-directory: ./terraform-config
 
     - name: Terraform Apply
+      id: cubeconfig_capture
       run: |
         terraform apply -auto-approve
       working-directory: ./terraform-config
@@ -63,7 +64,7 @@ jobs:
     - name: Write kubeconfig
       run: |
         mkdir -p ~/.kube
-        echo "${{ steps.terraform.outputs.kube_config }}" > ~/.kube/config
+        echo "${{ steps.cubeconfig_capture.outputs.* }}" > ~/.kube/config
         chmod 600 ~/.kube/config
       working-directory: terraform-config
 
