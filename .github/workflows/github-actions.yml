@@ -75,13 +75,10 @@ jobs:
 
     - name: Deploy Helm
       run: |
-        chmod 600 ${GITHUB_WORKSPACE}/terraform-config/kubeconfig
-        cat ${GITHUB_WORKSPACE}/terraform-config/kubeconfig
-        helm upgrade --install ${{ github.event.repository.name }} ./helm-config --kubeconfig ${GITHUB_WORKSPACE}/terraform-config/kubeconfig
-
+        helm upgrade --install nodejs-app ./helm-config \
+        --set image.repository=${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:latest
 
     - name: Verify Application
       run: |
-        kubectl get nodes -v=10
         kubectl get services
         kubectl get pods
