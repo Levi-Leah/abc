@@ -69,7 +69,7 @@ jobs:
     - name: Deploy using Helm
       run: |
         chmod 600 $GITHUB_WORKSPACE/terraform-config/kubeconfig
-        helm upgrade --install myapp ./helm-config --kubeconfig $GITHUB_WORKSPACE/terraform-config/kubeconfig
+        helm upgrade --install ${{ github.event.repository.name }} ./helm-config --kubeconfig $GITHUB_WORKSPACE/terraform-config/kubeconfig
         kubectl get pods --namespace default
 
     - name: Verify Application
