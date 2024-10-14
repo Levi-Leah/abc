@@ -62,7 +62,9 @@ jobs:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
     - name: Install Helm
-      uses: uses: vimeda/helm@v1.7.0
+      uses: vimeda/helm@v1.7.0
+      env:
+        KUBECONFIG: ${{ github.workspace }}/terraform-config/kubeconfig
 
     - name: Deploy using Helm
       run: |
