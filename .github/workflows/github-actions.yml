@@ -8,12 +8,6 @@ jobs:
   build-deploy:
     runs-on: ubuntu-latest
 
-    env: # Declare environment variables once for the entire job
-      ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-      ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-      ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-      ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
@@ -49,7 +43,8 @@ jobs:
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
     # Run the bash script to check or import resources, passing the Azure subscription ID as an argument
-    - name: Run Bash Script to Check or Import Resources
+    - name: Run Bash Script to Check if Resources Exist
+      uses: azure/cli@v2
       working-directory: ./terraform-config
       run: |
         chmod +x check_resources.sh
