@@ -2,14 +2,37 @@ provider "azurerm" {
     features {}
 }
 
-resource "null_resource" "run_script" {
-    provisioner "local-exec" {
-        command = "bash ${path.module}/check_resources.sh ${var.resource_group_name}"
-    }
-    
-    triggers = {
-        always_run = "${timestamp()}"
-    }
+# Create a storage account for Terraform state
+resource "azurerm_storage_account" "tfstate" {
+    name                     = "tfstateaccount"
+    resource_group_name       = var.resource_group_name
+    location                  = var.location
+    account_tier              = "Standard"
+    account_replication_type  = "LRS"
+}
+
+# Create a storage container to store the state files
+resource "azurerm_storage_container" "tfstate_container" {
+    name                  = "tfstate"
+    storage_account_name  = azurerm_storage_account.tfstate.name
+    container_access_type = "private"
+}
+
+# Create a storage account for Terraform state
+terraform {
+  backend "azurerm" {
+    resource_group_name   = var.resource_group_name
+    storage_account_name  = azurerm_storage_account.tfstate.name
+    container_name        = azurerm_storage_container.tfstate_container.name
+    key                   = "terraform.tfstate"
+  }
+}
+
+# Create a storage container to store the state files
+resource "azurerm_storage_container" "tfstate_container" {
+  name                  = "tfstate"
+  storage_account_name  = azurerm_storage_account.tfstate.name
+  container_access_type = "private"
 }
 
 # Create a Resource Group

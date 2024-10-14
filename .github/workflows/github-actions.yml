@@ -54,21 +54,6 @@ jobs:
       with:
         version: latest
 
-    # - name: Helm Deploy
-    #   uses: vimeda/helm@v1.7.0
-    #   with:
-    #     release: ${{ github.event.repository.name }}
-    #     namespace: 'default'
-    #     chart: ./helm-config
-    #   env:
-    #     KUBECONFIG_FILE: ./terraform-config/kubeconfig
-
-    # - name: Create Non-group-readable kubeconfig File
-    #   run: |
-    #     terraform output -raw kube_config > kubeconfig
-    #     chmod 600 kubeconfig
-    #   working-directory: ./terraform-config
-
     - name: Deploy Helm
       run: |
         helm upgrade --install ${{ github.event.repository.name }} ./helm-config --kubeconfig ./terraform-config/kubeconfig
