@@ -61,30 +61,30 @@ resource "azurerm_kubernetes_cluster" "aks_cluster" {
         }
 }
 
-# Output the kubeconfig file
-output "kube_config" {
-    value     = azurerm_kubernetes_cluster.aks_cluster.kube_config_raw
-    sensitive = true  # Mark this as sensitive because it contains credentials
-}
+# # Output the kubeconfig file
+# output "kube_config" {
+#     value     = azurerm_kubernetes_cluster.aks_cluster.kube_config_raw
+#     sensitive = true  # Mark this as sensitive because it contains credentials
+# }
 
-resource "local_file" "kubeconfig" {
-    content  = azurerm_kubernetes_cluster.aks_cluster.kube_config_raw
-    filename = "${path.module}/kubeconfig"
-}
+# resource "local_file" "kubeconfig" {
+#     content  = azurerm_kubernetes_cluster.aks_cluster.kube_config_raw
+#     filename = "${path.module}/kubeconfig"
+# }
 
 # Define the resource to generate kubeconfig using Azure CLI
 resource "null_resource" "get_kubeconfig" {
-  provisioner "local-exec" {
-    command = "az aks get-credentials --resource-group ${var.resource_group} --name ${var.cluster_name} --file ${path.module}/kubeconfig --overwrite-existing"
-  }
+    provisioner "local-exec" {
+        command = "az aks get-credentials --resource-group ${var.resource_group_name} --name ${var.aks_cluster_name} --file ${path.module}/kubeconfig --overwrite-existing"
+    }
 }
 
 # Verify cluster connectivity using kubectl
 resource "null_resource" "verify_cluster" {
-  provisioner "local-exec" {
-    command = "kubectl --kubeconfig=${path.module}/kubeconfig get nodes"
-  }
-  depends_on = [null_resource.get_kubeconfig]
+    provisioner "local-exec" {
+        command = "kubectl --kubeconfig=${path.module}/kubeconfig get nodes"
+        }
+    depends_on = [null_resource.get_kubeconfig]
 }
 
 # Define the Helm release
