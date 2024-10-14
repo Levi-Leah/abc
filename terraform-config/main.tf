@@ -1,3 +1,7 @@
+provider "azurerm" {
+    features {}
+}
+
 resource "null_resource" "run_script" {
     provisioner "local-exec" {
         command = "bash ${path.module}/check_resources.sh ${var.resource_group_name}"
@@ -6,10 +10,6 @@ resource "null_resource" "run_script" {
     triggers = {
         always_run = "${timestamp()}"
     }
-}
-
-provider "azurerm" {
-    features {}
 }
 
 # Create a Resource Group to hold your resources (network, cluster, etc.)
