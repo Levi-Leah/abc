@@ -48,14 +48,20 @@ jobs:
       run: terraform apply -auto-approve
       working-directory: ./terraform-config
 
-    - name: Helm Deploy
-      uses: vimeda/helm@v1.7.0
+
+    - name: Helm
+      uses: azure/setup-helm@v4
       with:
-        release: ${{ github.event.repository.name }}
-        namespace: 'default'
-        chart: ./helm-config
-      env:
-        KUBECONFIG_FILE: ./terraform-config/kubeconfig
+        version: latest
+
+    # - name: Helm Deploy
+    #   uses: vimeda/helm@v1.7.0
+    #   with:
+    #     release: ${{ github.event.repository.name }}
+    #     namespace: 'default'
+    #     chart: ./helm-config
+    #   env:
+    #     KUBECONFIG_FILE: ./terraform-config/kubeconfig
 
     # - name: Create Non-group-readable kubeconfig File
     #   run: |
@@ -63,9 +69,9 @@ jobs:
     #     chmod 600 kubeconfig
     #   working-directory: ./terraform-config
 
-    # - name: Deploy Helm
-    #   run: |
-    #     helm upgrade --install nodejs-app ./helm-config --kubeconfig ./terraform-config/kubeconfig
+    - name: Deploy Helm
+      run: |
+        helm upgrade --install ${{ github.event.repository.name }} ./helm-config --kubeconfig ./terraform-config/kubeconfig
 
     # - name: Verify Application
     #   run: |
