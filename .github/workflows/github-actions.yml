@@ -48,9 +48,15 @@ jobs:
       run: terraform apply -auto-approve
       working-directory: ./terraform-config
 
-    - name: Export kubeconfig File
+    - name: Set KUBECONFIG
       run: |
-        echo "KUBECONFIG=$(terraform output -raw kube_config)" > $GITHUB_ENV
+        terraform output -raw kube_config
+        echo "KUBECONFIG=$(terraform output -raw kube_config)" >> $GITHUB_ENV
+      shell: bash
+
+    - name: Test
+      run: echo $KUBECONFIG
+
     - name: Deploy Helm
       run: |
         echo ${{ env.KUBECONFIG }}
