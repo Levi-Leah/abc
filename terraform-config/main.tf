@@ -72,17 +72,17 @@ resource "local_file" "kubeconfig" {
     filename = "${path.module}/kubeconfig"
 }
 
-# Define the Helm provider with the kubeconfig
-provider "helm" {
-    kubernetes {
-        config_path = "${path.module}/kubeconfig"
-    }
-}
+# # Define the Helm provider with the kubeconfig
+# provider "helm" {
+#     kubernetes {
+#         config_path = "${path.module}/kubeconfig"
+#     }
+# }
 
-# Define the Helm release
-resource "helm_release" "nodejs_app" {
-    depends_on = [azurerm_kubernetes_cluster.aks_cluster, local_file.kubeconfig]
-    name       = "abc"
-    chart      = "../helm-config"
-    namespace  = "default"
-}
+# # Define the Helm release
+# resource "helm_release" "nodejs_app" {
+#     depends_on = [azurerm_kubernetes_cluster.aks_cluster, local_file.kubeconfig]
+#     name       = "abc"
+#     chart      = "../helm-config"
+#     namespace  = "default"
+# }

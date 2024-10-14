@@ -48,6 +48,15 @@ jobs:
       run: terraform apply -auto-approve
       working-directory: ./terraform-config
 
+    - name: Helm Deploy
+      uses: deliverybot/helm@master
+      with:
+        release: ${{ github.event.repository.name }}
+        namespace: 'default'
+        chart: ./helm-config
+      env:
+        KUBECONFIG_FILE: ./terraform-config/kubeconfig
+
     # - name: Create Non-group-readable kubeconfig File
     #   run: |
     #     terraform output -raw kube_config > kubeconfig
