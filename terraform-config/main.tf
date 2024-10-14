@@ -72,20 +72,20 @@ resource "local_file" "kubeconfig" {
     filename = "${path.module}/kubeconfig"
 }
 
+# Define the resource to generate kubeconfig using Azure CLI
+resource "null_resource" "get_kubeconfig" {
+  provisioner "local-exec" {
+    command = "az aks get-credentials --resource-group ${var.resource_group} --name ${var.cluster_name} --file ${path.module}/kubeconfig --overwrite-existing"
+  }
+}
+
+# Verify cluster connectivity using kubectl
 resource "null_resource" "verify_cluster" {
   provisioner "local-exec" {
     command = "kubectl --kubeconfig=${path.module}/kubeconfig get nodes"
   }
   depends_on = [null_resource.get_kubeconfig]
 }
-
-# Define the Helm provider with the kubeconfig
-provider "helm" {
-    kubernetes {
-        config_path = "${path.module}/kubeconfig"
-    }
-}
-
 
 # Define the Helm release
 resource "helm_release" "nodejs_app" {
