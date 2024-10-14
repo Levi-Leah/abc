@@ -2,6 +2,16 @@ provider "azurerm" {
     features {}
 }
 
+resource "null_resource" "run_script" {
+    provisioner "local-exec" {
+        command = "bash ${path.module}/check_resources.sh ${var.resource_group_name}"
+    }
+    
+    triggers = {
+        always_run = "${timestamp()}"
+    }
+}
+
 # Create a Resource Group
 resource "azurerm_resource_group" "aks_rg" {
     name     = var.resource_group_name
@@ -61,18 +71,3 @@ resource "local_file" "kubeconfig" {
     content  = azurerm_kubernetes_cluster.aks_cluster.kube_config_raw
     filename = "${path.module}/kubeconfig"
 }
-
-# # Define the Helm provider with the kubeconfig
-# provider "helm" {
-#     kubernetes {
-#         config_path = "${path.module}/kubeconfig"
-#     }
-# }
-
-# # Define the Helm release
-# resource "helm_release" "nodejs_app" {
-#     depends_on = [azurerm_kubernetes_cluster.aks_cluster, local_file.kubeconfig]
-#     name       = "abc"
-#     chart      = "../helm-config"
-#     namespace  = "default"
-# }
