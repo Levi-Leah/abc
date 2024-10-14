@@ -48,18 +48,18 @@ jobs:
       run: terraform apply -auto-approve
       working-directory: ./terraform-config
 
-    - name: Export kubeconfig file
+    - name: Export kubeconfig File
       run: |
-        export KUBECONFIG=${GITHUB_WORKSPACE}/terraform-config/kubeconfig
+        export KUBECONFIG=<(terraform output -raw kube_config)
         echo $KUBECONFIG
 
     - name: Deploy Helm
       run: |
         echo $KUBECONFIGs
-        helm upgrade --install nodejs-app ./helm-config \
-        --set image.repository=${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:latest
+    #     helm upgrade --install nodejs-app ./helm-config \
+    #     --set image.repository=${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:latest
 
-    - name: Verify Application
-      run: |
-        kubectl get services
-        kubectl get pods
+    # - name: Verify Application
+    #   run: |
+    #     kubectl get services
+    #     kubectl get pods
