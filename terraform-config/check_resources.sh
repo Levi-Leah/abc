@@ -1,18 +1,13 @@
 #!/bin/bash
 
 # Pass the Azure Subscription ID from GitHub
-AZURE_SUBSCRIPTION_ID=$1
+RESOURCE_GROUP=$1
+AZURE_SUBSCRIPTION_ID=$2
 
-# Parse the the resource group name from Terraform
-eval "$(jq -r '@sh "RESOURCE_GROUP=\(.resource_group_name)"')"
+echo $RESOURCE_GROUP
 
 # Check if the resource group exists
 rg_exists=$(az group exists --name "$RESOURCE_GROUP")
-
-if [[ $? -ne 0 ]]; then
-    echo "Error: Failed to check if the resource group exists."
-    exit 1
-fi
 
 if [[ "$rg_exists" == "true" ]]; then
     echo "Resource group $RESOURCE_GROUP already exists. Importing all resources into Terraform..."

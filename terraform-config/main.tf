@@ -1,8 +1,11 @@
-data "external" "check_or_create_resources" {
-    program = ["bash", "${path.module}/check_resources.sh"]
-    query = {
-        resource_group_name = var.resource_group_name
-        }
+resource "null_resource" "run_script" {
+    provisioner "local-exec" {
+        command = "bash ${path.module}/check_resources.sh ${var.resource_group_name} ${subscription_id}"
+    }
+    
+    triggers = {
+        always_run = "${timestamp()}"
+    }
 }
 
 provider "azurerm" {
