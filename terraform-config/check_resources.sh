@@ -9,6 +9,11 @@ eval "$(jq -r '@sh "RESOURCE_GROUP=\(.resource_group_name)"')"
 # Check if the resource group exists
 rg_exists=$(az group exists --name "$RESOURCE_GROUP")
 
+if [[ $? -ne 0 ]]; then
+    echo "Error: Failed to check if the resource group exists."
+    exit 1
+fi
+
 if [[ "$rg_exists" == "true" ]]; then
     echo "Resource group $RESOURCE_GROUP already exists. Importing all resources into Terraform..."
 
