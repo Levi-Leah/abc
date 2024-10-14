@@ -49,7 +49,7 @@ jobs:
       working-directory: ./terraform-config
 
     - name: Helm Deploy
-      uses: deliverybot/helm@v1
+      uses: vimeda/helm@v1.7.0
       with:
         release: ${{ github.event.repository.name }}
         namespace: 'default'
