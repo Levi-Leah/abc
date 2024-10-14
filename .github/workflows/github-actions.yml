@@ -63,6 +63,11 @@ jobs:
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
+    - name: Write kubeconfig
+      run: |
+        echo "${{ steps.terraform.outputs.kube_config }}" > ~/.kube/config
+      working-directory: terraform-config
+
     - name: Install Helm
       uses: azure/setup-helm@v4.2.0
       with:
