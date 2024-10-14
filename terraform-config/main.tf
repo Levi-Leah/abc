@@ -42,23 +42,23 @@ resource "azurerm_kubernetes_cluster" "aks_cluster" {
     dns_prefix          = var.dns_prefix
     
     default_node_pool {
-        name           = "default"
-        node_count     = var.node_count
-        vm_size        = var.vm_size
-        vnet_subnet_id = azurerm_subnet.aks_subnet.id
+        name       = "default"
+        node_count = var.node_count
+        vm_size    = var.vm_size
+        vnet_subnet_id = azurerm_subnet.aks_subnet.id 
     }
 
     # Set network profile to avoid the ServiceCidrOverlapExistingSubnetsCidr Error
     network_profile {
-        network_plugin = "azure"
-        service_cidr   = var.service_cidr
-        dns_service_ip = var.dns_service_ip
+        network_plugin     = "azure"
+        service_cidr       = var.service_cidr
+        dns_service_ip     = var.dns_service_ip
     }
-
+    
     # Managed identity for AKS
     identity {
         type = "SystemAssigned"
-    }
+        }
 }
 
 # Output the kubeconfig file
@@ -67,7 +67,6 @@ output "kube_config" {
     sensitive = true  # Mark this as sensitive because it contains credentials
 }
 
-# Write the kubeconfig to a local file
 resource "local_file" "kubeconfig" {
     content  = azurerm_kubernetes_cluster.aks_cluster.kube_config_raw
     filename = "${path.module}/kubeconfig"
@@ -80,18 +79,9 @@ provider "helm" {
     }
 }
 
-# Define the resource to generate kubeconfig using Azure CLI
-resource "null_resource" "get_kubeconfig" {
-    depends_on = [azurerm_kubernetes_cluster.aks_cluster, local_file.kubeconfig]
-
-    provisioner "local-exec" {
-        command = "az aks get-credentials --resource-group ${var.resource_group_name} --name ${var.aks_cluster_name} --file ${path.module}/kubeconfig --overwrite-existing"
-    }
-}
-
 # Define the Helm release
 resource "helm_release" "nodejs_app" {
-    depends_on = [azurerm_kubernetes_cluster.aks_cluster, local_file.kubeconfig, null_resource.get_kubeconfig]  # Wait until kubeconfig is generated
+    depends_on = [azurerm_kubernetes_cluster.aks_cluster, local_file.kubeconfig]
     name       = "abc"
     chart      = "../helm-config"
     namespace  = "default"
