@@ -1,9 +1,37 @@
-name: CI/CD for Node.js App on AKS
+
+name: Build the App
+
 on:
   push:
     branches:
-    - main # Run CI/CD when code is merged into the main branch
+      - main
+    paths:
+      - 'app/**'
 
+jobs:
+  docker-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and push Docker image
+        run: |
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:latest .
+          docker push ${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:latest
+
+name: Build the Infrastructure
+on:
+  push:
+    branches:
+    - main
 jobs:
   build-deploy:
     runs-on: ubuntu-latest
@@ -18,14 +46,14 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: 'latest'
+    # - name: Set up Node.js
+    #   uses: actions/setup-node@v4
+    #   with:
+    #     node-version: 'latest'
 
-    - name: Install npm
-      run: npm install
-      working-directory: ./app
+    # - name: Install npm
+    #   run: npm install
+    #   working-directory: ./app
 
     - name: Install kubectl
       uses: azure/setup-kubectl@v4
@@ -50,16 +78,15 @@ jobs:
         terraform apply -auto-approve
       working-directory: ./terraform-config
 
-    - name: Cat a file
+    - name: Set up Helm
+      uses: Azure/setup-helm@v4.2.0
+
+    - name: Deploy Helm
       run: |
         chmod 600 ${GITHUB_WORKSPACE}/terraform-config/kubeconfig
         cat ${GITHUB_WORKSPACE}/terraform-config/kubeconfig
+        helm upgrade --install ${{ github.event.repository.name }} ./helm-config --kubeconfig ${GITHUB_WORKSPACE}/terraform-config/kubeconfig
 
-    - name: Deploy Helm
-      uses: Azure/setup-helm@v4.2.0
-      with:
-        exec:
-          helm upgrade --install ${{ github.event.repository.name }} ./helm-config --kubeconfig ${GITHUB_WORKSPACE}/terraform-config/kubeconfig
 
     - name: Verify Application
       run: |
