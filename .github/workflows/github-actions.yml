@@ -52,7 +52,7 @@ jobs:
       run: |
         terraform output -raw kube_config
         echo "KUBECONFIG=$(terraform output -raw kube_config)" >> $GITHUB_ENV
-      shell: bash
+      working-directory: ./terraform-config
 
     - name: Test
       run: echo $KUBECONFIG
