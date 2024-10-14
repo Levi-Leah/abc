@@ -46,15 +46,23 @@ jobs:
       working-directory: ./terraform-config
 
     - name: Terraform Apply
-      id: cubeconfig_capture
       run: |
         terraform apply -auto-approve
       working-directory: ./terraform-config
 
     - name: Cat a file
-      run: cat $GITHUB_WORKSPACE/terraform-config/kubeconfig
+      run: |
+        chmod 600 ${GITHUB_WORKSPACE}/terraform-config/kubeconfig
+        cat ${GITHUB_WORKSPACE}/terraform-config/kubeconfig
+
+    - name: Deploy Helm
+      uses: Azure/setup-helm@v4.2.0
+      with:
+        exec:
+          helm upgrade --install ${{ github.event.repository.name }} ./helm-config --kubeconfig ${GITHUB_WORKSPACE}/terraform-config/kubeconfig
 
     - name: Verify Application
       run: |
+        kubectl get nodes -v=10
         kubectl get services
         kubectl get pods
