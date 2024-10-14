@@ -1,9 +1,3 @@
-# Subscription ID to pass to Bash script
-variable "subscription_id" {
-    description = "Azure Subscription ID"
-    default     = ""
-}
-
 # Location for deploying resources
 variable "location" {
     description = "Azure region to deploy resources"
