@@ -49,7 +49,7 @@ jobs:
       working-directory: ./terraform-config
 
     - name: Helm Deploy
-      uses: deliverybot/helm@master
+      uses: deliverybot/helm@v1
       with:
         release: ${{ github.event.repository.name }}
         namespace: 'default'
