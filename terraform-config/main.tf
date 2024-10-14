@@ -67,7 +67,21 @@ output "kube_config" {
     sensitive = true  # Mark this as sensitive because it contains credentials
 }
 
-# resource "local_file" "kubeconfig" {
-#     content  = azurerm_kubernetes_cluster.aks_cluster.kube_config_raw
-#     filename = "${path.module}/kubeconfig"
-# }
+resource "local_file" "kubeconfig" {
+    content  = azurerm_kubernetes_cluster.aks_cluster.kube_config_raw
+    filename = "${path.module}/kubeconfig"
+}
+
+# Define the Helm provider with the kubeconfig
+provider "helm" {
+    kubernetes {
+        config_path = "${path.module}/kubeconfig"
+    }
+}
+
+# Define the Helm release
+resource "helm_release" "nodejs_app" {
+    name       = "app_name"
+    chart      = "./helm-config"
+    namespace  = "default"
+}

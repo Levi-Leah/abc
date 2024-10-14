@@ -48,15 +48,15 @@ jobs:
       run: terraform apply -auto-approve
       working-directory: ./terraform-config
 
-    - name: Create Non-group-readable kubeconfig File
-      run: |
-        terraform output -raw kube_config > kubeconfig
-        chmod 600 kubeconfig
-      working-directory: ./terraform-config
+    # - name: Create Non-group-readable kubeconfig File
+    #   run: |
+    #     terraform output -raw kube_config > kubeconfig
+    #     chmod 600 kubeconfig
+    #   working-directory: ./terraform-config
 
-    - name: Deploy Helm
-      run: |
-        helm upgrade --install nodejs-app ./helm-config --kubeconfig ./terraform-config/kubeconfig
+    # - name: Deploy Helm
+    #   run: |
+    #     helm upgrade --install nodejs-app ./helm-config --kubeconfig ./terraform-config/kubeconfig
 
     # - name: Verify Application
     #   run: |
