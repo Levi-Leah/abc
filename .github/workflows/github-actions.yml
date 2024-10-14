@@ -47,7 +47,7 @@ jobs:
       working-directory: ./terraform-config
 
     - name: Terraform Plan
-      run: terraform plan -var="bfdjksfhjhdsbfhj"
+      run: terraform plan -var="subscription_id="example_id""
       working-directory: ./terraform-config
 
     - name: Terraform Apply
