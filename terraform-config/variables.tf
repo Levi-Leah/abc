@@ -1,5 +1,5 @@
 # Subscription ID passed from GitHub
-variable "subscription_id" {
+variable "example_id" {
   type = string
   description = "Azure subscription ID"
 }
