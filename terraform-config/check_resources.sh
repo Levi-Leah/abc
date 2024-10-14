@@ -28,4 +28,4 @@ else
 fi
 
 # Return JSON to Terraform
-jq -n --arg result "done" '{"result":$result}'
+jq -n --arg result "done" '{"result": $result}'
