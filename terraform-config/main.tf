@@ -1,6 +1,6 @@
 resource "null_resource" "run_script" {
     provisioner "local-exec" {
-        command = "bash ${path.module}/check_resources.sh ${var.resource_group_name} ${var.subscription_id}"
+        command = "bash ${path.module}/check_resources.sh ${var.resource_group_name}"
     }
     
     triggers = {
