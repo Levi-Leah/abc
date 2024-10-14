@@ -47,13 +47,13 @@ jobs:
       working-directory: ./terraform-config
 
     - name: Terraform Plan
-      run: terraform plan
+      run: terraform plan -var="bfdjksfhjhdsbfhj"
       working-directory: ./terraform-config
 
     - name: Terraform Apply
       id: cubeconfig_capture
       run: |
-        terraform apply -var subscription_id="bfdsjhgbdfh" -auto-approve
+        terraform apply -auto-approve
       working-directory: ./terraform-config
 
     - name: Azure Login
