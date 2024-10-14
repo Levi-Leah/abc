@@ -72,6 +72,13 @@ resource "local_file" "kubeconfig" {
     filename = "${path.module}/kubeconfig"
 }
 
+resource "null_resource" "verify_cluster" {
+  provisioner "local-exec" {
+    command = "kubectl --kubeconfig=${path.module}/kubeconfig get nodes"
+  }
+  depends_on = [null_resource.get_kubeconfig]
+}
+
 # Define the Helm provider with the kubeconfig
 provider "helm" {
     kubernetes {
@@ -79,8 +86,10 @@ provider "helm" {
     }
 }
 
+
 # Define the Helm release
 resource "helm_release" "nodejs_app" {
+    depends_on = [azurerm_kubernetes_cluster.aks_cluster, local_file.kubeconfig]
     name       = "abc"
     chart      = "../helm-config"
     namespace  = "default"
