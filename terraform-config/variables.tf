@@ -35,7 +35,7 @@ variable "subnet_address_prefixes" {
 }
 
 # AKS cluster name
-variable "ABCcluster_name" {
+variable "aks_cluster_name" {
     description = "The name of the AKS cluster"
     default     = "ABCCluster"
 }
