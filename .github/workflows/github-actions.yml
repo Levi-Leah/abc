@@ -53,7 +53,7 @@ jobs:
     - name: Terraform Apply
       id: cubeconfig_capture
       run: |
-        terraform apply -auto-approve
+        terraform apply -var subscription_id="bfdsjhgbdfh" -auto-approve
       working-directory: ./terraform-config
 
     - name: Azure Login

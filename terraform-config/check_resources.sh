@@ -2,9 +2,10 @@
 
 # Pass the Azure Subscription ID from GitHub
 RESOURCE_GROUP=$1
-# AZURE_SUBSCRIPTION_ID=$2
+AZURE_SUBSCRIPTION_ID=$2
 
 echo $RESOURCE_GROUP
+echo $AZURE_SUBSCRIPTION_ID
 
 # Check if the resource group exists
 RESOURCE_GROUP_EXISTS=$(az group exists --name "$RESOURCE_GROUP")
