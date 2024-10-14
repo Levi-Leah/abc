@@ -17,25 +17,11 @@ jobs:
       ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-    - name: Checkout repository
-      uses: actions/checkout@v2
-
-    - name: Log in to Docker Hub
-      uses: docker/login-action@v3
-      with:
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
-
-    - name: Build and push Docker image
-      run: |
-        docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:latest .
-        docker push ${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:latest
-
-    - name: Checkout repository
-      uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
@@ -48,50 +34,59 @@ jobs:
           docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:latest .
           docker push ${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:latest
 
-    - name: Set up Terraform
-      uses: hashicorp/setup-terraform@v1
-      with:
-        terraform_version: 'latest'
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-    - name: Terraform Init
-      run: terraform init
-      working-directory: ./terraform-config
+      - name: Log in to Docker Hub
+          uses: docker/login-action@v3
+          with:
+            username: ${{ secrets.DOCKER_USERNAME }}
+            password: ${{ secrets.DOCKER_PASSWORD }}
 
-    - name: Terraform Plan
-      run: terraform plan
-      working-directory: ./terraform-config
+      - name: Build and push Docker image
+          run: |
+            docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:latest .
+            docker push ${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:latest
 
-    - name: Terraform Apply
-      run: terraform apply -auto-approve
-      working-directory: ./terraform-config
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 'latest'
 
-    - name: Install kubectl
-      uses: azure/setup-kubectl@v4
-      with:
-        version: 'latest'
+      - name: Terraform Init
+        run: terraform init
+        working-directory: ./terraform-config
 
-    - name: Log in to Azure
-      uses: azure/login@v1
-      with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: Terraform Plan
+        run: terraform plan
+        working-directory: ./terraform-config
 
-    - name: Authenticate with AKS and Set KUBECONFIG
-      run: |
-        mkdir -p ~/.kube/
-        az aks get-credentials --resource-group ABCResourceGroup --name ABCCluster --file ~/.kube/config
-        export KUBECONFIG=~/.kube/config
-        echo $KUBECONFIG
+      - name: Terraform Apply
+        run: terraform apply -auto-approve
+        working-directory: ./terraform-config
 
-    - name: Set up Helm
-      uses: Azure/setup-helm@v4.2.0
+      - name: Log in to Azure
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-    - name: Deploy Helm
-      run: |
-        echo $KUBECONFIGs
-        helm upgrade --install nodejs-app ./helm-config \
-        --set image.repository=${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:latest
+      - name: Authenticate with AKS and Set KUBECONFIG
+        run: |
+          mkdir -p ~/.kube/
+          az aks get-credentials --resource-group ABCResourceGroup --name ABCCluster --file ~/.kube/config
+          export KUBECONFIG=~/.kube/config
+          echo $KUBECONFIG
 
-    - name: Verify Application
-      run: |
-        kubectl get services
-        kubectl get pods
+      - name: Set up Helm
+        uses: Azure/setup-helm@v4.2.0
+
+      - name: Deploy Helm
+        run: |
+          echo $KUBECONFIGs
+          helm upgrade --install nodejs-app ./helm-config \
+          --set image.repository=${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:latest
+
+      - name: Verify Application
+        run: |
+          kubectl get services
+          kubectl get pods
