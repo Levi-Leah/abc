@@ -82,6 +82,6 @@ provider "helm" {
 # Define the Helm release
 resource "helm_release" "nodejs_app" {
     name       = "app_name"
-    chart      = "./helm-config"
+    chart      = "../helm-config"
     namespace  = "default"
 }
