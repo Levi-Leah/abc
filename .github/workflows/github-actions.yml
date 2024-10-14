@@ -45,7 +45,7 @@ jobs:
     - name: Run Bash Script to Check or Import Resources
       working-directory: ./terraform-config
       run: |
-        chmod +x ${GITHUB_WORKSPACE}/check_resources.sh
+        chmod +x check_resources.sh
         ./check_resources.sh ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
     - name: Terraform Plan
