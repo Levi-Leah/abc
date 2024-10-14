@@ -26,7 +26,7 @@ app.get('/', (req, res) => {
 
         res.send(`
             <h1>User Management</h1>
-            <form method="POST" action="/add-user["10.0.0.0/16"]   r">
+            <form method="POST" action="/add-user">
                 <label>Name: <input type="text" name="name" required></label>
                 <label>Email: <input type="email" name="email" required></label>
                 <button type="submit">Add User</button>
