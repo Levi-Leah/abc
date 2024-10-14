@@ -1,3 +1,9 @@
+# Subscription ID passed from GitHub
+variable "example_id" {
+  type = string
+  description = "Azure subscription ID"
+}
+
 # Location for deploying resources
 variable "location" {
     description = "Azure region to deploy resources"
