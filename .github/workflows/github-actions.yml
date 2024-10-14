@@ -1,15 +1,13 @@
 
-name: Build the App
-
+name: Build the Infrastructure
 on:
   push:
     branches:
-      - main
-    paths:
-      - 'app/**'
+    - main
 
 jobs:
   docker-build:
+    if: contains(github.event.head_commit.message, 'app/')
     runs-on: ubuntu-latest
 
     steps:
@@ -27,12 +25,6 @@ jobs:
           docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:latest .
           docker push ${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:latest
 
-name: Build the Infrastructure
-on:
-  push:
-    branches:
-    - main
-jobs:
   build-deploy:
     runs-on: ubuntu-latest
 
