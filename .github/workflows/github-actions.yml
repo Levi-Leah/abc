@@ -41,6 +41,9 @@ jobs:
       run: terraform init
       working-directory: ./terraform-config
 
+    - name: Azure CLI Login
+      uses: azure/login@v2
+
     # Run the bash script to check or import resources, passing the Azure subscription ID as an argument
     - name: Run Bash Script to Check or Import Resources
       working-directory: ./terraform-config
