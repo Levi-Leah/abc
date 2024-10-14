@@ -63,8 +63,11 @@ jobs:
 
     - name: Install Helm
       uses: vimeda/helm@v1.7.0
-      env:
-        KUBECONFIG: ${{ github.workspace }}/terraform-config/kubeconfig
+      with:
+        release: ${{ github.event.repository.name }}
+        chart: ./helm-config
+        kubeconfig: $GITHUB_WORKSPACE/terraform-config/kubeconfig
+
 
     - name: Deploy using Helm
       run: |
