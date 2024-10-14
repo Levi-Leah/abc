@@ -59,7 +59,9 @@ jobs:
     - name: Deploy using Helm
       uses: WyriHaximus/github-action-helm3@v4.0.1
       with:
-        exec: helm upgrade --install ${{ github.event.repository.name }} ./helm-config --kubeconfig $GITHUB_WORKSPACE/terraform-config/kubeconfig
+        exec: |
+          echo $GITHUB_WORKSPACE/terraform-config/kubeconfig
+          helm upgrade --install ${{ github.event.repository.name }} ./helm-config --kubeconfig $GITHUB_WORKSPACE/terraform-config/kubeconfig
 
     - name: Verify Application
       run: |
