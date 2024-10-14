@@ -38,15 +38,6 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    # - name: Set up Node.js
-    #   uses: actions/setup-node@v4
-    #   with:
-    #     node-version: 'latest'
-
-    # - name: Install npm
-    #   run: npm install
-    #   working-directory: ./app
-
     - name: Install kubectl
       uses: azure/setup-kubectl@v4
       with:
@@ -66,9 +57,18 @@ jobs:
       working-directory: ./terraform-config
 
     - name: Terraform Apply
-      run: |
-        terraform apply -auto-approve
+      run: terraform apply -auto-approve
       working-directory: ./terraform-config
+
+    - name: Install kubectl
+      uses: azure/setup-kubectl@v4
+      with:
+        version: 'latest'
+
+    - name: Authenticate with AKS and Set KUBECONFIG
+      run: |
+        az aks get-credentials --resource-group ABCResourceGroup --name ABCCluster
+        export KUBECONFIG=/home/runner/.kube/config
 
     - name: Set up Helm
       uses: Azure/setup-helm@v4.2.0
