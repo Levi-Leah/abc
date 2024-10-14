@@ -67,14 +67,17 @@ jobs:
 
     - name: Authenticate with AKS and Set KUBECONFIG
       run: |
-        az aks get-credentials --resource-group ABCResourceGroup --name ABCCluster
-        export KUBECONFIG=/home/runner/.kube/config
+        mkdir -p ~/.kube/
+        az aks get-credentials --resource-group ABCResourceGroup --name ABCCluster --file ~/.kube/config
+        export KUBECONFIG=~/.kube/config
+        echo $KUBECONFIG
 
     - name: Set up Helm
       uses: Azure/setup-helm@v4.2.0
 
     - name: Deploy Helm
       run: |
+        echo $KUBECONFIGs
         helm upgrade --install nodejs-app ./helm-config \
         --set image.repository=${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:latest
 
