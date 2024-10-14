@@ -50,17 +50,17 @@ jobs:
 
     - name: Set KUBECONFIG
       run: |
-        terraform output -raw kube_config
-        echo "KUBECONFIG=$(terraform output -raw kube_config)" >> $GITHUB_ENV
+        terraform output -raw kube_config > kubeconfig
       working-directory: ./terraform-config
 
     - name: Test
-      run: echo $KUBECONFIG
+      run: cat kubeconfig
+      working-directory: ./terraform-config
 
     - name: Deploy Helm
       run: |
         echo ${{ env.KUBECONFIG }}
-        helm upgrade --install nodejs-app ./helm-config
+        helm upgrade --install nodejs-app ./helm-config --kubeconfig ./terraform-config/kubeconfig
     #     --set image.repository=${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:latest
 
     # - name: Verify Application
