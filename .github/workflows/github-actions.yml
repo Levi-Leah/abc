@@ -61,13 +61,6 @@ jobs:
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-    - name: Write kubeconfig
-      run: |
-        mkdir -p ~/.kube
-        echo "${{ steps.cubeconfig_capture.outputs.* }}" > ~/.kube/config
-        chmod 600 ~/.kube/config
-      working-directory: terraform-config
-
     - name: Install Helm
       uses: azure/setup-helm@v4.2.0
       with:
@@ -75,7 +68,7 @@ jobs:
 
     - name: Deploy using Helm
       run: |
-        helm upgrade --install myapp ./helm-config
+        helm upgrade --install myapp ./helm-config --kubeconfig ./kubeconfig
         kubectl get pods --namespace default
 
     - name: Verify Application
