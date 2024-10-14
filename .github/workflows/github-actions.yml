@@ -51,17 +51,8 @@ jobs:
         terraform apply -auto-approve
       working-directory: ./terraform-config
 
-    # - name: Azure Login
-    #   uses: azure/login@v2
-    #   with:
-    #     creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-    - name: Deploy using Helm
-      uses: WyriHaximus/github-action-helm3@v4.0.1
-      with:
-        exec: |
-          echo $GITHUB_WORKSPACE/terraform-config/kubeconfig
-          helm upgrade --install ${{ github.event.repository.name }} ./helm-config --kubeconfig $GITHUB_WORKSPACE/terraform-config/kubeconfig
+    - name: Cat a file
+      run: cat $GITHUB_WORKSPACE/terraform-config/kubeconfig
 
     - name: Verify Application
       run: |
