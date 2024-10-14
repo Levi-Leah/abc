@@ -50,7 +50,7 @@ jobs:
 
     - name: Export kubeconfig file
       run: |
-        export KUBECONFIG=/${GITHUB_WORKSPACE}/terraform-config/kubeconfig
+        export KUBECONFIG=${GITHUB_WORKSPACE}/terraform-config/kubeconfig
         echo $KUBECONFIG
 
     - name: Deploy Helm
