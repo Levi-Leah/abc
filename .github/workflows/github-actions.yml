@@ -53,7 +53,7 @@ jobs:
           echo "storage_exists=false" >> $GITHUB_ENV
         fi
 
-    - name: Create Storage Account and Container (if not exists)
+    - name: Create Storage Account and Container if it does not exists
       if: ${{ env.storage_exists == 'false' }}
       run: |
 
@@ -62,8 +62,7 @@ jobs:
         # Create storage account for Terraform state
         az storage account create --name "xyzstorageaccount123" --resource-group "XYZStorageResourceGroup" --location "Japan West" --sku Standard_LRS
         # Create storage container for Terraform state
-        az storage container create --name "xyz-storage-container" --account-name "XYZtStorageContainer"
-
+        az storage container create --name "XYZtStorageContainer" --account-name "XYZtStorageContainer"
 
     - name: Terraform Init
       run: terraform init
