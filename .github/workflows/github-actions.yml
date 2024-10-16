@@ -37,16 +37,18 @@ jobs:
         terraform_version: 'latest'
 
     - name: Terraform Init
-      run: terraform init -migrate-state
-      working-directory: ./terraform-config
+      run: |
+        echo ${{ github.workspace }}
+        terraform init -migrate-state
+      working-directory: ${{ github.workspace }}/terraform-config
 
     - name: Terraform Plan
       run: terraform plan
-      working-directory: ./terraform-config
+      working-directory: ${{ github.workspace }}/terraform-config
 
     - name: Terraform Apply
       run: terraform apply -auto-approve
-      working-directory: ./terraform-config
+      working-directory: ${{ github.workspace }}/terraform-config
 
     - name: Helm
       uses: azure/setup-helm@v4
@@ -55,7 +57,7 @@ jobs:
 
     - name: Deploy Helm
       run: |
-        helm upgrade --install ${{ github.event.repository.name }} ./helm-config --kubeconfig ./terraform-config/kubeconfig
+        helm upgrade --install ${{ github.event.repository.name }} ${{ github.workspace }}/helm-config --kubeconfig ${{ github.workspace }}/terraform-config/kubeconfig
 
     # - name: Verify Application
     #   run: |
