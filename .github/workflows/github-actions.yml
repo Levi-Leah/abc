@@ -47,8 +47,10 @@ jobs:
     - name: Check if Storage Account Exists
       id: check_account
       run: |
-        name_avaliable=$(az storage account check-name --name $STORAGE_ACCOUNT --query 'nameAvailable' --output tsv)
-        if [[ "$name_avaliable" == "true" ]]; then
+        
+        group_exists=$(az group exists --name $STORAGE_ACCOUNT)
+        
+        if [[ "$group_exists" == "false" ]]; then
           echo "Storage account does not exist."
           echo "storage_exists=false" >> $GITHUB_ENV
         else
