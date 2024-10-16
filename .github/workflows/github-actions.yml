@@ -37,7 +37,7 @@ jobs:
         terraform_version: 'latest'
 
     - name: Terraform Init
-      run: terraform init -migrate-state
+      run: terraform init
       working-directory: ${{ github.workspace }}/terraform-config
 
     - name: Terraform Plan
