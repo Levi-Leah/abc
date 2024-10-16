@@ -17,8 +17,8 @@ jobs:
       ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
 
     steps:
-    # - name: Checkout repository
-    #   uses: actions/checkout@v2
+    - name: Checkout repository
+      uses: actions/checkout@v2
 
     # - name: Log in to Docker Hub
     #   uses: docker/login-action@v3
@@ -35,14 +35,6 @@ jobs:
       uses: hashicorp/setup-terraform@v1
       with:
         terraform_version: 'latest'
-
-    - name: Print current working directory
-      run: |
-        echo $(pwd)
-        ls $(pwd)
-        echo ${{ github.workspace }}
-        ls ${{ github.workspace }}
-
 
     - name: Terraform Init
       run: terraform init -migrate-state
