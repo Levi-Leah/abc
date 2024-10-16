@@ -104,7 +104,12 @@ jobs:
 
         helm upgrade --install $APP_NAME ./helm-config --set Image.Repository=${{ secrets.DOCKER_USERNAME }} --kubeconfig ./terraform-config/kubeconfig
 
-    # - name: Verify Application
-    #   run: |
-    #     kubectl get services
-    #     kubectl get pods
+    - name: Get External IP
+      run: |
+        EXTERNAL_IP=$(kubectl get services --output jsonpath="{.items[*].status.loadBalancer.ingress[*].ip}")
+        echo "EXTERNAL_IP=$EXTERNAL_IP" >> $GITHUB_ENV
+
+    - name: Check if App is Running
+      run: |
+        echo "Checking if the app is running at ${{ env.EXTERNAL_IP }}..."
+        curl -f http://${{ env.EXTERNAL_IP }} || echo "App is not responding"
