@@ -19,6 +19,7 @@ jobs:
       STORAGE_CONTAINER: "xyztoragecontainer"
       STATE_FILE: "terraform.tfstate"
       STORAGE_LOCATION: "Japan West"
+      APP_NAME: ${{ github.event.repository.name }}
 
     steps:
     - name: Checkout repository
@@ -98,7 +99,8 @@ jobs:
 
     - name: Deploy Helm
       run: |
-        helm upgrade --install ${{ github.event.repository.name }} ${{ github.workspace }}/helm-config --kubeconfig ${{ github.workspace }}/terraform-config/kubeconfig
+
+        helm upgrade --install $APP_NAME ./helm-config --set Image.Repository=${{ secrets.DOCKER_USERNAME }} --kubeconfig ./terraform-config/kubeconfig
 
     # - name: Verify Application
     #   run: |
