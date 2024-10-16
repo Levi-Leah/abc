@@ -4,27 +4,6 @@ variable "location" {
     default     = "Japan West"
 }
 
-# Storage resource group name
-# If changed must be manually updated in .github/workflows/github-actions.yml
-variable "storage_resource_group_name" {
-    description = "The name of the storage resource group"
-    default = "XYZStorageResourceGroup"
-}
-
-# Storage account name
-# If changed must be manually updated in .github/workflows/github-actions.yml
-variable "storage_account_name" {
-    description = "The name of the storage account"
-    default = "xyzstorageaccount123"
-}
-
-# Storage container name
-# If changed must be manually updated in .github/workflows/github-actions.yml
-variable "storage_container_name" {
-    description = "The name of the storage container for the state file"
-    default = "XYZtStorageContainer"
-}
-
 # Resource group name
 variable "resource_group_name" {
     description = "The name of the resource group"
