@@ -1,4 +1,4 @@
-# If changvalues are changed, must be manually updated in .github/workflows/github-actions.yml
+# If value names change, they must be manually updated in .github/workflows/github-actions.yml
 
 # Define the resource group for Terraform state storage
 resource "azurerm_resource_group" "tfstate" {
@@ -7,7 +7,6 @@ resource "azurerm_resource_group" "tfstate" {
 }
 
 # Create the storage account for the state file
-# If changed must be manually updated in .github/workflows/github-actions.yml
 resource "azurerm_storage_account" "tfstate_storage" {
     name                      = "xyzstorageaccount123"
     resource_group_name       = azurerm_resource_group.tfstate.name
