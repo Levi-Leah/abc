@@ -15,6 +15,9 @@ jobs:
       ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
       ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
       ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      STORAGE_RESOURCE_GROUP: "XYZStorageResourceGroup"
+      STORAGE_ACCOUNT: "xyzstorageaccount1234567"
+      STORAGE_CONTAINER: "XYZStorageContainer"
 
     steps:
     - name: Checkout repository
@@ -44,7 +47,7 @@ jobs:
     - name: Check if Storage Account Exists
       id: check_account
       run: |
-        name_avaliable=$(az storage account check-name --name xyzstorageaccount12345 --query 'nameAvailable' --output tsv)
+        name_avaliable=$(az storage account check-name --name $STORAGE_ACCOUNT --query 'nameAvailable' --output tsv)
         if [[ "$name_avaliable" == "true" ]]; then
           echo "Storage account does not exist."
           echo "storage_exists=false" >> $GITHUB_ENV
@@ -58,11 +61,11 @@ jobs:
       run: |
 
         # Create resource group for backend storage
-        az group create --name "XYZStorageResourceGroup" --location "Japan West"
+        az group create --name $STORAGE_RESOURCE_GROUP --location "Japan West"
         # Create storage account for Terraform state
-        az storage account create --name "xyzstorageaccount12345" --resource-group "XYZStorageResourceGroup" --location "Japan West" --sku Standard_LRS
+        az storage account create --name $STORAGE_ACCOUNT --resource-group $STORAGE_RESOURCE_GROUP --location "Japan West" --sku Standard_LRS
         # Create storage container for Terraform state
-        az storage container create --name "XYZtStorageContainer" --account-name "XYZStorageContainer"
+        az storage container create --name $STORAGE_CONTAINER --account-name $STORAGE_ACCOUNT
 
     - name: Terraform Init
       run: terraform init
