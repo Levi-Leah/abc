@@ -95,11 +95,13 @@ jobs:
     - name: Get Terraform Output
       run: |
 
+          terraform output -raw resource_group_name
+
           echo "resource_group_name=$(terraform output -raw resource_group_name)" >> $GITHUB_ENV
           echo "aks_cluster_name=$(terraform output -raw aks_cluster_name)" >> $GITHUB_ENV
 
-          echo $aks_resource_group
-          echo $aks_cluster
+          echo $env.resource_group_name
+          echo $env.aks_cluster
       working-directory: ./terraform-config
 
     - name: Helm
@@ -115,7 +117,7 @@ jobs:
 
     - name: Echo
       run: |
-        echo $env.aks_resource_group
+        echo $env.resource_group_name
         echo $env.aks_cluster
 
     # - name: Get External IP
