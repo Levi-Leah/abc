@@ -18,6 +18,7 @@ jobs:
       STORAGE_ACCOUNT: "xyzstorageaccountunique4"
       STORAGE_CONTAINER: "xyztoragecontainer"
       STATE_FILE: "terraform.tfstate"
+      STORAGE_LOCATION: "Japan West"
 
     steps:
     - name: Checkout repository
@@ -47,9 +48,9 @@ jobs:
     - name: Check if State File Exists
       id: check_account
       run: |
-        
+
         tf_state=$(az storage blob exists --container-name $STORAGE_CONTAINER --name $STATE_FILE --account-name $STORAGE_ACCOUNT --query "exists")
-        
+
         if [[ "$tf_state" == "false" ]]; then
           echo "State file does not exist."
           echo "storage_exists=false" >> $GITHUB_ENV
@@ -58,15 +59,11 @@ jobs:
           echo "storage_exists=true" >> $GITHUB_ENV
         fi
 
-    - name: Create Storage Account and Container if it does not exists
+    - name: Create resource group, account, and container for state storage
       if: ${{ env.storage_exists == 'false' }}
       run: |
-
-        # Create resource group for backend storage
-        az group create --name $STORAGE_RESOURCE_GROUP --location "Japan West"
-        # Create storage account for Terraform state
-        az storage account create --name $STORAGE_ACCOUNT --resource-group $STORAGE_RESOURCE_GROUP --location "Japan West" --sku Standard_LRS
-        # Create storage container for Terraform state
+        az group create --name $STORAGE_RESOURCE_GROUP --location $STORAGE_LOCATION
+        az storage account create --name $STORAGE_ACCOUNT --resource-group $STORAGE_RESOURCE_GROUP --location $STORAGE_LOCATION --sku Standard_LRS
         az storage container create --name $STORAGE_CONTAINER --account-name $STORAGE_ACCOUNT
 
     - name: Terraform Init
