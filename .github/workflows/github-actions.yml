@@ -51,10 +51,10 @@ jobs:
         tf_state=$(az storage blob exists --container-name $STORAGE_CONTAINER --name $STATE_FILE --account-name $STORAGE_ACCOUNT --query "exists"
         
         if [[ "$tf_state" == "false" ]]; then
-          echo "Storage account does not exist."
+          echo "State file does not exist."
           echo "storage_exists=false" >> $GITHUB_ENV
         else
-          echo "Storage account exists."
+          echo "State file exists."
           echo "storage_exists=true" >> $GITHUB_ENV
         fi
 
