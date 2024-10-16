@@ -35,8 +35,6 @@ jobs:
       run: |
         IMAGE="${{ secrets.DOCKER_USERNAME }}/$APP_NAME:latest"
 
-        echo $IMAGE
-
         if docker manifest inspect "$IMAGE" > /dev/null 2>&1; then
           echo "Docker image already exists."
           echo "docker_image_exists=true" >> $GITHUB_ENV
@@ -98,6 +96,7 @@ jobs:
       run: |
           terraform output -raw aks_cluster_name
           terraform output -raw resource_group_name
+      working-directory: ./terraform-config
 
     - name: Helm
       uses: azure/setup-helm@v4
