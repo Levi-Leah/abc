@@ -1,3 +1,15 @@
+# Configure the backend storage
+# If value names change, they must be manually updated in .github/workflows/github-actions.yml
+
+terraform {
+    backend "azurerm" {
+        resource_group_name   = "XYZStorageResourceGroup"
+        storage_account_name  = "xyzstorageaccountunique2"
+        container_name        = "xyztoragecontainer"
+        key                   = "terraform.tfstate"
+    }
+}
+
 # Create a Resource Group
 resource "azurerm_resource_group" "aks_rg" {
     name     = var.resource_group_name
