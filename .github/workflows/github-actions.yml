@@ -94,6 +94,14 @@ jobs:
       run: terraform apply -auto-approve
       working-directory: ./terraform-config
 
+    - name: Get Terraform Outputs
+      run: |
+          echo "aks_resource_group=$(terraform output -raw aks_resource_group)" >> $GITHUB_ENV
+          echo "aks_cluster=$(terraform output -raw aks_cluster_name)" >> $GITHUB_ENV
+
+          echo $aks_resource_group
+          echo $aks_cluster
+
     - name: Helm
       uses: azure/setup-helm@v4
       with:
@@ -104,11 +112,11 @@ jobs:
 
         helm upgrade --install $APP_NAME ./helm-config --set Image.Repository=${{ secrets.DOCKER_USERNAME }} --kubeconfig ./terraform-config/kubeconfig
 
-    - name: Test
+
+    - name: Echo
       run: |
-        terraform output -raw aks_resource_group
-        resource_group_name=$(terraform output -raw aks_resource_group)
         echo $aks_resource_group
+        echo $aks_cluster
 
     # - name: Get External IP
     #   run: |
