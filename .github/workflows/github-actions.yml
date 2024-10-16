@@ -17,6 +17,7 @@ jobs:
       STORAGE_RESOURCE_GROUP: "XYZStorageResourceGroup"
       STORAGE_ACCOUNT: "xyzstorageaccountunique4"
       STORAGE_CONTAINER: "xyztoragecontainer"
+      STATE_FILE: "terraform.tfstate"
 
     steps:
     - name: Checkout repository
@@ -43,13 +44,13 @@ jobs:
       with:
         terraform_version: 'latest'
 
-    - name: Check if Storage Account Exists
+    - name: Check if State File Exists
       id: check_account
       run: |
         
-        group_exists=$(az group exists --name $STORAGE_RESOURCE_GROUP)
+        tf_state=$(az storage blob exists --container-name $STORAGE_CONTAINER --name $STATE_FILE --account-name $STORAGE_ACCOUNT --query "exists"
         
-        if [[ "$group_exists" == "false" ]]; then
+        if [[ "$tf_state" == "false" ]]; then
           echo "Storage account does not exist."
           echo "storage_exists=false" >> $GITHUB_ENV
         else
