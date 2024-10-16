@@ -8,7 +8,7 @@ resource "azurerm_resource_group" "tfstate" {
 
 # Create the storage account for the state file
 resource "azurerm_storage_account" "tfstate_storage" {
-    name                      = "xyzstorageaccount1234"
+    name                      = "xyzstorageaccount12345"
     resource_group_name       = azurerm_resource_group.tfstate.name
     location                  = azurerm_resource_group.tfstate.location
     account_tier              = "Standard"
@@ -26,7 +26,7 @@ resource "azurerm_storage_container" "tfstate_container" {
 terraform {
     backend "azurerm" {
         resource_group_name   = "XYZStorageResourceGroup"
-        storage_account_name  = "xyzstorageaccount123"
+        storage_account_name  = "xyzstorageaccount12345"
         container_name        = "XYZtStorageContainer"
         key                   = "terraform.tfstate"
     }

@@ -44,7 +44,7 @@ jobs:
     - name: Check if Storage Account Exists
       id: check_account
       run: |
-        name_avaliable=$(az storage account check-name --name xyzstorageaccount1234 --query 'nameAvailable' --output tsv)
+        name_avaliable=$(az storage account check-name --name xyzstorageaccount12345 --query 'nameAvailable' --output tsv)
         if [[ "$name_avaliable" == "true" ]]; then
           echo "Storage account does not exist."
           echo "storage_exists=false" >> $GITHUB_ENV
@@ -60,9 +60,9 @@ jobs:
         # Create resource group for backend storage
         az group create --name "XYZStorageResourceGroup" --location "Japan West"
         # Create storage account for Terraform state
-        az storage account create --name "xyzstorageaccount1234" --resource-group "XYZStorageResourceGroup" --location "Japan West" --sku Standard_LRS
+        az storage account create --name "xyzstorageaccount12345" --resource-group "XYZStorageResourceGroup" --location "Japan West" --sku Standard_LRS
         # Create storage container for Terraform state
-        az storage container create --name "XYZtStorageContainer" --account-name "XYZtStorageContainer"
+        az storage container create --name "XYZtStorageContainer" --account-name "XYZStorageContainer"
 
     - name: Terraform Init
       run: terraform init
