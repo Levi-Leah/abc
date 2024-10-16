@@ -48,7 +48,7 @@ jobs:
       id: check_account
       run: |
         
-        group_exists=$(az group exists --name $STORAGE_ACCOUNT)
+        group_exists=$(az group exists --name $STORAGE_RESOURCE_GROUP)
         
         if [[ "$group_exists" == "false" ]]; then
           echo "Storage account does not exist."
