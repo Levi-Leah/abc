@@ -60,7 +60,7 @@ jobs:
         # Create resource group for backend storage
         az group create --name "XYZStorageResourceGroup" --location "Japan West"
         # Create storage account for Terraform state
-        az storage account create --name "xyzstorageaccount123" --resource-group "XYZStorageResourceGroup" --location "Japan West" --sku Standard_LRS
+        az storage account create --name "xyzstorageaccount1234" --resource-group "XYZStorageResourceGroup" --location "Japan West" --sku Standard_LRS
         # Create storage container for Terraform state
         az storage container create --name "XYZtStorageContainer" --account-name "XYZtStorageContainer"
 

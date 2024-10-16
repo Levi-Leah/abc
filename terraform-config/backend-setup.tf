@@ -8,7 +8,7 @@ resource "azurerm_resource_group" "tfstate" {
 
 # Create the storage account for the state file
 resource "azurerm_storage_account" "tfstate_storage" {
-    name                      = "xyzstorageaccount123"
+    name                      = "xyzstorageaccount1234"
     resource_group_name       = azurerm_resource_group.tfstate.name
     location                  = azurerm_resource_group.tfstate.location
     account_tier              = "Standard"
