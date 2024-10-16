@@ -1,12 +1,12 @@
 # Define the resource group for Terraform state storage
 resource "azurerm_resource_group" "tfstate" {
-    name     = "rg-tfstate"
+    name     = var.storage_resource_group_name
     location = var.location
 }
 
 # Create the storage account for the state file
 resource "azurerm_storage_account" "tfstate_storage" {
-    name                     = "myterraformstorage"
+    name                      = var.storage_account_name
     resource_group_name       = azurerm_resource_group.tfstate.name
     location                  = azurerm_resource_group.tfstate.location
     account_tier              = "Standard"
@@ -15,7 +15,7 @@ resource "azurerm_storage_account" "tfstate_storage" {
 
 # Create the container for the state file
 resource "azurerm_storage_container" "tfstate_container" {
-    name                  = "terraform-state"
+    name                   = var.storage_container_name
     storage_account_name   = azurerm_storage_account.tfstate_storage.name
     container_access_type  = "private"
 }

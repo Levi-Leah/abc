@@ -31,22 +31,51 @@ jobs:
     #     docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:latest .
     #     docker push ${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:latest
 
+    - name: Set up Azure CLI
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
     - name: Set up Terraform
       uses: hashicorp/setup-terraform@v1
       with:
         terraform_version: 'latest'
 
+    - name: Check if Storage Account Exists
+      id: check_account
+      run: |
+        account_exists=$(az storage account check-name --name xyzstorageaccount123 --query 'nameAvailable' --output tsv)
+        if [[ "$account_exists" == "false" ]]; then
+          echo "Storage account exists."
+          echo "storage_exists=true" >> $GITHUB_ENV
+        else
+          echo "Storage account does not exist."
+          echo "storage_exists=false" >> $GITHUB_ENV
+        fi
+
+    - name: Create Storage Account and Container (if not exists)
+      if: ${{ env.storage_exists == 'false' }}
+      run: |
+
+        # Create resource group for backend storage
+        az group create --name "XYZStorageResourceGroup" --location "Japan West"
+        # Create storage account for Terraform state
+        az storage account create --name "xyzstorageaccount123" --resource-group "XYZStorageResourceGroup" --location "Japan West" --sku Standard_LRS
+        # Create storage container for Terraform state
+        az storage container create --name "xyz-storage-container" --account-name "XYZtStorageContainer"
+
+
     - name: Terraform Init
       run: terraform init
-      working-directory: ${{ github.workspace }}/terraform-config
+      working-directory: ./terraform-config
 
     - name: Terraform Plan
       run: terraform plan
-      working-directory: ${{ github.workspace }}/terraform-config
+      working-directory: ./terraform-config
 
     - name: Terraform Apply
       run: terraform apply -auto-approve
-      working-directory: ${{ github.workspace }}/terraform-config
+      working-directory: ./terraform-config
 
     - name: Helm
       uses: azure/setup-helm@v4
