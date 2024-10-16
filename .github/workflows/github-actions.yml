@@ -24,16 +24,29 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    # - name: Log in to Docker Hub
-    #   uses: docker/login-action@v3
-    #   with:
-    #     username: ${{ secrets.DOCKER_USERNAME }}
-    #     password: ${{ secrets.DOCKER_PASSWORD }}
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
 
-    # - name: Build and push Docker image
-    #   run: |
-    #     docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:latest .
-    #     docker push ${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:latest
+    - name: Check if Docker image exists
+      run: |
+        echo ${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:latest
+
+        if [ -z "$(docker images -q ${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:latest 2> /dev/null)" ]; then
+          echo "Docker image already exists."
+          echo "docker_image_exists=true" >> $GITHUB_ENV
+        else
+          echo "Docker image does not exist."
+          echo "docker_image_exists=false" >> $GITHUB_ENV
+        fi
+
+    - name: Build and push Docker image
+      if: ${{ env.docker_image_exists == 'false' }}
+      run: |
+        docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:latest .
+        docker push ${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:latest
 
     - name: Set up Azure CLI
       uses: azure/login@v1
