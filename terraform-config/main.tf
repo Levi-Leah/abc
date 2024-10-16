@@ -1,14 +1,14 @@
-provider "azurerm" {
-    features {}
-}
+# provider "azurerm" {
+#     features {}
+# }
 
-resource "null_resource" "run_script" {
-    provisioner "local-exec" {
-        command = "bash ${path.module}/check_resources.sh ${var.resource_group_name}"
-    }
-    
-    triggers = {
-        always_run = "${timestamp()}"
+# Track Storage
+terraform {
+    backend "azurerm" {
+        resource_group_name   = "state-storage-rg"
+        storage_account_name  = "statestorageaccount"
+        container_name        = "tfstate"
+        key                   = "terraform.tfstate"
     }
 }
 
