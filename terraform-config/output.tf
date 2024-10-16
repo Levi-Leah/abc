@@ -1,7 +1,9 @@
-output "aks_resource_group" {
-    value = var.resource_group_name
+output "resource_group_name" {
+    value     = var.var.aks_cluster_name
+    description = "The name of the resource group"
 }
 
-output "aks_cluster" {
-    value = var.aks_cluster_name
+output "aks_cluster_name" {
+    value       = var.aks_cluster_name
+    description = "The name of the AKS cluster"
 }
