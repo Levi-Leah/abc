@@ -104,12 +104,16 @@ jobs:
 
         helm upgrade --install $APP_NAME ./helm-config --set Image.Repository=${{ secrets.DOCKER_USERNAME }} --kubeconfig ./terraform-config/kubeconfig
 
-    - name: Get External IP
+    - name: Test
       run: |
-        EXTERNAL_IP=$(kubectl get services --output jsonpath="{.items[*].status.loadBalancer.ingress[*].ip}")
-        echo "EXTERNAL_IP=$EXTERNAL_IP" >> $GITHUB_ENV
+        echo $TF_VAR_resource_group_name
 
-    - name: Check if App is Running
-      run: |
-        echo "Checking if the app is running at ${{ env.EXTERNAL_IP }}..."
-        curl -f http://${{ env.EXTERNAL_IP }} || echo "App is not responding"
+    # - name: Get External IP
+    #   run: |
+    #     EXTERNAL_IP=$(kubectl get services --output jsonpath="{.items[*].status.loadBalancer.ingress[*].ip}")
+    #     echo "EXTERNAL_IP=$EXTERNAL_IP" >> $GITHUB_ENV
+
+    # - name: Check if App is Running
+    #   run: |
+    #     echo "Checking if the app is running at ${{ env.EXTERNAL_IP }}..."
+    #     curl -f http://${{ env.EXTERNAL_IP }} || echo "App is not responding"
