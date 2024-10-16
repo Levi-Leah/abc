@@ -106,7 +106,8 @@ jobs:
 
     - name: Test
       run: |
-        echo $TF_VAR_resource_group_name
+        resource_group_name=$(terraform output -raw aks_resource_group)
+        echo $aks_resource_group
 
     # - name: Get External IP
     #   run: |
