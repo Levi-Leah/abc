@@ -1,17 +1,3 @@
-# provider "azurerm" {
-#     features {}
-# }
-
-# Track Storage
-terraform {
-    backend "azurerm" {
-        resource_group_name   = "state-storage-rg"
-        storage_account_name  = "statestorageaccount"
-        container_name        = "tfstate"
-        key                   = "terraform.tfstate"
-    }
-}
-
 # Create a Resource Group
 resource "azurerm_resource_group" "aks_rg" {
     name     = var.resource_group_name
