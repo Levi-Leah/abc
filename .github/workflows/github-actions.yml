@@ -38,7 +38,7 @@ jobs:
 
     - name: Terraform Init
       run: |
-        echo ${{ github.workspace }}
+        ls ${{ github.workspace }}
         terraform init -migrate-state
       working-directory: ${{ github.workspace }}/terraform-config
 
