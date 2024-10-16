@@ -48,7 +48,7 @@ jobs:
       id: check_account
       run: |
         
-        tf_state=$(az storage blob exists --container-name $STORAGE_CONTAINER --name $STATE_FILE --account-name $STORAGE_ACCOUNT --query "exists"
+        tf_state=$(az storage blob exists --container-name $STORAGE_CONTAINER --name $STATE_FILE --account-name $STORAGE_ACCOUNT --query "exists")
         
         if [[ "$tf_state" == "false" ]]; then
           echo "State file does not exist."
