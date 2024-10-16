@@ -33,7 +33,9 @@ jobs:
 
     - name: Check if Docker image exists
       run: |
-        IMAGE="${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:latest"
+        IMAGE="${{ secrets.DOCKER_USERNAME }}/$APP_NAME:latest"
+
+        echo $IMAGE
 
         if docker manifest inspect "$IMAGE" > /dev/null 2>&1; then
           echo "Docker image already exists."
