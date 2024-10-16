@@ -58,6 +58,7 @@ jobs:
       uses: hashicorp/setup-terraform@v1
       with:
         terraform_version: 'latest'
+        terraform_wrapper: false
 
     - name: Check if State File Exists
       id: check_account
@@ -94,12 +95,10 @@ jobs:
 
     - name: Get Terraform Output
       run: |
-
           terraform output resource_group_name
 
-          echo "resource_group_name=$(terraform output resource_group_name | sed 's/"//g')" >> $GITHUB_ENV
-          echo "aks_cluster_name=$(terraform output aks_cluster_name | sed 's/"//g')" >> $GITHUB_ENV
-
+          echo "resource_group_name=$(terraform output resource_group_name)" >> $GITHUB_ENV
+          echo "aks_cluster_name=$(terraform output aks_cluster_name" >> $GITHUB_ENV
       working-directory: ./terraform-config
 
     - name: Helm
