@@ -95,8 +95,6 @@ jobs:
 
     - name: Get Terraform Output
       run: |
-          terraform output resource_group_name | sed 's/"//g'
-
           echo "resource_group_name=$(terraform output resource_group_name | sed 's/"//g')" >> $GITHUB_ENV
           echo "aks_cluster_name=$(terraform output aks_cluster_name | sed 's/"//g')" >> $GITHUB_ENV
       working-directory: ./terraform-config
@@ -114,8 +112,8 @@ jobs:
 
     - name: Echo
       run: |
-        echo $env.resource_group_name
-        echo $env.aks_cluster
+        echo $resource_group_name
+        echo $aks_cluster
 
     # - name: Get External IP
     #   run: |
