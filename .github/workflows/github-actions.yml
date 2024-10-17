@@ -53,7 +53,6 @@ jobs:
     - name: Set up Azure CLI
       uses: azure/login@v2
       with:
-        azcliversion: latest
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
     - name: Set up Terraform
@@ -108,7 +107,7 @@ jobs:
 
     - name: Deploy Helm
       run: |
-
+        chmod 600 ./terraform-config/kubeconfig
         helm upgrade --install ${{ env.APP_NAME }} ./helm-config --set Image.Repository=${{ secrets.DOCKER_USERNAME }} --kubeconfig ./terraform-config/kubeconfig
 
     - name: Get External IP
