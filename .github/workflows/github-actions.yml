@@ -27,7 +27,7 @@ jobs:
       uses: actions/checkout@v2
 
     - name: Log in to Docker Hub
-      uses: docker/login-action@v6
+      uses: docker/login-action@v3
       with:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_TOKEN }}
@@ -66,18 +66,18 @@ jobs:
       id: check_account
       run: |
 
-        tf_state=$(az storage blob exists --container-name $STORAGE_CONTAINER --name $STATE_FILE --account-name $STORAGE_ACCOUNT --query "exists")
+        TF_STATE=$(az storage blob exists --container-name $STORAGE_CONTAINER --name $STATE_FILE --account-name $STORAGE_ACCOUNT --query "exists")
 
-        if [[ "$tf_state" == "false" ]]; then
+        if [[ "${{ env.TF_STATE }}" == "false" ]]; then
           echo "State file does not exist."
-          echo "storage_exists=false" >> $GITHUB_ENV
+          echo "STORAGE_EXISTS=false" >> $GITHUB_ENV
         else
           echo "State file exists."
-          echo "storage_exists=true" >> $GITHUB_ENV
+          echo "STORAGE_EXISTS=true" >> $GITHUB_ENV
         fi
 
     - name: Create resource group, account, and container for state storage
-      if: ${{ env.storage_exists == 'false' }}
+      if: ${{ env.STORAGE_EXISTS == 'false' }}
       run: |
         az group create --name $STORAGE_RESOURCE_GROUP --location $STORAGE_LOCATION
         az storage account create --name $STORAGE_ACCOUNT --resource-group $STORAGE_RESOURCE_GROUP --location $STORAGE_LOCATION --sku Standard_LRS
@@ -97,8 +97,8 @@ jobs:
 
     - name: Get Terraform Output
       run: |
-          echo "resource_group_name=$(terraform output resource_group_name | sed 's/"//g')" >> $GITHUB_ENV
-          echo "aks_cluster_name=$(terraform output aks_cluster_name | sed 's/"//g')" >> $GITHUB_ENV
+          echo "RESOURCE_GROUP_NAME=$(terraform output resource_group_name | sed 's/"//g')" >> $GITHUB_ENV
+          echo "AKS_CLUSTER_NAME=$(terraform output aks_cluster_name | sed 's/"//g')" >> $GITHUB_ENV
       working-directory: ./terraform-config
 
     - name: Helm
@@ -109,15 +109,15 @@ jobs:
     - name: Deploy Helm
       run: |
 
-        helm upgrade --install $APP_NAME ./helm-config --set Image.Repository=${{ secrets.DOCKER_USERNAME }} --kubeconfig ./terraform-config/kubeconfig
+        helm upgrade --install ${{ env.APP_NAME }} ./helm-config --set Image.Repository=${{ secrets.DOCKER_USERNAME }} --kubeconfig ./terraform-config/kubeconfig
 
     - name: Get External IP
       run: |
-        az aks get-credentials --resource-group $resource_group_name --name $aks_cluster_name
+        az aks get-credentials --resource-group ${{ $env.RESOURCE_GROUP_NAME }} --name ${{ env.AKS_CLUSTER_NAME  }}
         
         kubectl get services --output jsonpath="{.items[*].status.loadBalancer.ingress[*].ip}"
         echo "EXTERNAL_IP=$(kubectl get services --output jsonpath="{.items[*].status.loadBalancer.ingress[*].ip}")" >> $GITHUB_ENV
 
     - name: Check if App is Running
       run: |
-        curl -f http://$EXTERNAL_IP/ || exit 1
+        curl -f http://${{ env.EXTERNAL_IP }}/ || exit 1
