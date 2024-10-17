@@ -118,5 +118,7 @@ jobs:
 
     - name: Check if App is Running
       run: |
-        echo "Checking if the app is running at ${{ env.EXTERNAL_IP }}..."
-        curl -f http://${{ EXTERNAL_IP }} || echo "App is not responding"
+        echo "Checking if the app is running at $EXTERNAL_IP..."
+        curl -f http://$EXTERNAL_IP || echo "App is not responding"
+        
+        echo ${{ env.EXTERNAL_IP }}
