@@ -58,5 +58,10 @@ db.run(`
     )
 `);
 
+// Health check route
+app.get('/health', (req, res) => {
+    res.status(200).send('App is running');
+});
+
 // Start server
 app.listen(port, () => console.log(`App is running on ${port}`));
