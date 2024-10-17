@@ -113,7 +113,7 @@ jobs:
 
     - name: Get External IP
       run: |
-        az aks get-credentials --resource-group ${{ $env.RESOURCE_GROUP_NAME }} --name ${{ env.AKS_CLUSTER_NAME  }}
+        az aks get-credentials --resource-group ${{ env.RESOURCE_GROUP_NAME }} --name ${{ env.AKS_CLUSTER_NAME  }}
         
         kubectl get services --output jsonpath="{.items[*].status.loadBalancer.ingress[*].ip}"
         echo "EXTERNAL_IP=$(kubectl get services --output jsonpath="{.items[*].status.loadBalancer.ingress[*].ip}")" >> $GITHUB_ENV
