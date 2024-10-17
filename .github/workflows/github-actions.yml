@@ -118,5 +118,4 @@ jobs:
 
     - name: Check if App is Running
       run: |
-        echo $EXTERNAL_IP
         curl -f http://$EXTERNAL_IP/ || exit 1
