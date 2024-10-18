@@ -91,12 +91,10 @@ jobs:
         for i in {1..5}; do
           EXTERNAL_IP=$(kubectl get service $APP_NAME-service --output jsonpath="{.status.loadBalancer.ingress[0].ip}")
 
-          echo "::add-mask::$EXTERNAL_IP" >> $GITHUB_ENV
-
-            if [[ -n "$EXTERNAL_IP" ]]; then
-              echo "EXTERNAL_IP=$EXTERNAL_IP" >> $GITHUB_ENV
-              break
-            fi
+          if [[ -n "$EXTERNAL_IP" ]]; then
+            echo "EXTERNAL_IP=$EXTERNAL_IP" >> $GITHUB_ENV
+            break
+          fi
             echo "Waiting for External IP to be assigned..."
             sleep 30
           done
