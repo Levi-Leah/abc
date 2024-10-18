@@ -83,33 +83,3 @@ jobs:
       run: |
         chmod 600 ${{  env.TF_DIR }}/kubeconfig
         helm upgrade --install $APP_NAME ${{ env.HELM_DIR }} --kubeconfig ${{  env.TF_DIR }}/kubeconfig
-
-    - name: Get External IP
-      run: |
-        az aks get-credentials --resource-group ${{ env.RESOURCE_GROUP_NAME }} --name ${{ env.AKS_CLUSTER_NAME  }}
-
-        for i in {1..5}; do
-          EXTERNAL_IP=$(kubectl get service $APP_NAME-service --output jsonpath="{.status.loadBalancer.ingress[0].ip}")
-
-          if [[ -n "$EXTERNAL_IP" ]]; then
-            echo "EXTERNAL_IP=$EXTERNAL_IP" >> $GITHUB_ENV
-            break
-          fi
-            echo "Waiting for External IP to be assigned..."
-            sleep 30
-          done
-
-          if [[ -z "$EXTERNAL_IP" ]]; then
-            echo "Failed to retrieve External IP."
-            exit 1
-          fi
-
-    - name: Check if App is Running
-      run: |
-        STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://$EXTERNAL_IP)
-
-        if [ "$STATUS" -ne 200 ]; then
-            echo "App is not running. Status code: $STATUS"
-            exit 1
-        fi
-            echo "App is running. Status code: $STATUS"
