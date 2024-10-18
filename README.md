@@ -228,6 +228,7 @@ The GitHub Actions workflow automates the deployment of the Node.js application 
 3. Access the application in your browser via `http://EXTERNAL_IP/`
 
     Replace `<EXTERNAL_IP>` with your actual external IP.
+    Note that it might take a few minutes for the application to start running on the external IP.
 
 ### Testing the application locally
 
