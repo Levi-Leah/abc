@@ -3,7 +3,7 @@
 terraform {
     backend "azurerm" {
         resource_group_name   = "ABCStorageResourceGroup"
-        storage_account_name  = "abcstorageaccountunique6"
+        storage_account_name  = "abcstorageaccountunique9"
         container_name        = "abctoragecontainer"
         key                   = "terraform.tfstate"
     }
