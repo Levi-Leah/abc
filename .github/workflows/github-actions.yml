@@ -68,12 +68,6 @@ jobs:
         terraform apply -auto-approve
       working-directory: ${{  env.TF_DIR }}
 
-    - name: Get Terraform Output
-      run: |
-        echo "RESOURCE_GROUP_NAME=$(terraform output resource_group_name | sed 's/"//g')" >> $GITHUB_ENV
-        echo "AKS_CLUSTER_NAME=$(terraform output aks_cluster_name | sed 's/"//g')" >> $GITHUB_ENV
-      working-directory: ${{  env.TF_DIR }}
-
     - name: Set up Helm
       uses: azure/setup-helm@v4
       with:
