@@ -88,7 +88,7 @@ jobs:
       run: |
         az aks get-credentials --resource-group ${{ env.RESOURCE_GROUP_NAME }} --name ${{ env.AKS_CLUSTER_NAME  }}
 
-        kubectl wait --for=condition=ready service my-app-service --timeout=150s
+        kubectl wait --for=condition=ready service $APP_NAME --timeout=150s
 
         EXTERNAL_IP=$(kubectl get service $APP_NAME --output jsonpath="{.status.loadBalancer.ingress[0].ip}")
 
