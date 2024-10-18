@@ -88,18 +88,23 @@ jobs:
       run: |
         az aks get-credentials --resource-group ${{ env.RESOURCE_GROUP_NAME }} --name ${{ env.AKS_CLUSTER_NAME  }}
 
-        kubectl wait --for=condition=ready service $APP_NAME --timeout=150s
+        for i in {1..5}; do
+          EXTERNAL_IP=$(kubectl get service $APP_NAME-service --output jsonpath="{.status.loadBalancer.ingress[0].ip}")
 
-        EXTERNAL_IP=$(kubectl get service $APP_NAME-service --output jsonpath="{.status.loadBalancer.ingress[0].ip}")
+          echo "::add-mask::$EXTERNAL_IP" >> $GITHUB_ENV
 
-        echo "::add-mask::$EXTERNAL_IP" >> $GITHUB_ENV
+            if [[ -n "$EXTERNAL_IP" ]]; then
+              echo "EXTERNAL_IP=$EXTERNAL_IP" >> $GITHUB_ENV
+              break
+            fi
+            echo "Waiting for External IP to be assigned..."
+            sleep 30
+          done
 
-        if [ -n "$EXTERNAL_IP" ]; then
-          echo "EXTERNAL_IP=$EXTERNAL_IP" >> $GITHUB_ENV
-        else
-          echo "Failed to retrieve External IP."
-          exit 1
-        fi
+          if [[ -z "$EXTERNAL_IP" ]]; then
+            echo "Failed to retrieve External IP."
+            exit 1
+          fi
 
     - name: Check if App is Running
       run: |
