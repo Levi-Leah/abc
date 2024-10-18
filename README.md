@@ -211,10 +211,13 @@ The GitHub Actions workflow automates the deployment of the Node.js application 
 
 1. Wait for the CI/CD pipeline to successfully complete.
 
+1. Install [Kubernetes CLI tools](https://kubernetes.io/docs/tasks/tools/)
+
 2. Retrieve the external IP for Azure:
 
     ```bash
     az aks get-credentials --resource-group ABCResourceGroup --name ABCCluster
+    
     kubectl get service poc-abc-service --output jsonpath="{.status.loadBalancer.ingress[0].ip}"
 
     <EXTERNAL_IP>
