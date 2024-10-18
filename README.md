@@ -10,7 +10,7 @@
     - [Prerequisites](#prerequisites)
     - [Deployment](#deployment)
       - [Authenticate](#authenticate)
-      - [Create a GitHub repository](#create-a-github-repository)
+      - [Set up the GitHub repository](#set-up-the-github-repository)
       - [Add GitHub secrets](#add-github-secrets)
   - [Testing](#testing)
     - [Testing the application remotely](#testing-the-application-remotely)
@@ -26,7 +26,7 @@ This project is a Proof of Concept (POC) to demonstrate the deployment of a Node
 
 ```bash
 # Repository structure
-.
+.valeeva.levi               # Root of the repository
 ├── app/                    # Contains the Node.js application
 ├── Dockerfile              # Dockerfile to build the Node.js application image
 ├── .github
@@ -79,14 +79,14 @@ The GitHub Actions workflow automates the deployment of the Node.js application 
     gh auth login
     ```
 
-#### Create a GitHub repository
+#### Set up the GitHub repository
 
 1. Create a new public repository on [Github](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-new-repository).
 
 2. Navigate to the `valeeva.levi` directory:
 
     ```bash
-    cd valeeva
+    cd valeeva.levi
     ```
 
 3. Initiate the Git repository and add the GitHub remote:
@@ -113,7 +113,6 @@ The GitHub Actions workflow automates the deployment of the Node.js application 
 > * `AZURE_CREDENTIALS`: The JSON output from creating the Azure Service Principal, containing all necessary authentication details.
 > * `AZURE_CLIENT_ID`: The client ID from your Azure Service Principal.
 > * `AZURE_CLIENT_SECRET`: The client secret from your Azure Service Principal.
-> * `AZURE_SUBSCRIPTION_ID`: The ID of your Azure subscription.
 > * `AZURE_TENANT_ID`: The tenant ID associated with your Azure account.
 >
 > Ensure that all secrets are created in your GitHub repository with the exact names specified. The workflow relies on these names to properly access and utilize the secrets during the deployment process.
@@ -137,12 +136,12 @@ The GitHub Actions workflow automates the deployment of the Node.js application 
 3. Create a service principal:
 
     ```bash
-    az ad sp create-for-rbac --name "SERVICE_PRINCIPAL_NAME" --role Contributor --scopes /subscriptions/<AZURE_SUBSCRIPTION_ID> --sdk-auth
+    az ad sp create-for-rbac --name "<SERVICE_PRINCIPAL_NAME>" --role Contributor --scopes /subscriptions/<AZURE_SUBSCRIPTION_ID> --sdk-auth
 
     {
     "clientId": "<YourClientID>",
     "clientSecret": "<YourClientSecret>",
-    "subscriptionId": "<YourSubscriptionID>>",
+    "subscriptionId": "<YourSubscriptionID>",
     "tenantId": "YourTenantID",
     "activeDirectoryEndpointUrl": "https://login.microsoftonline.com",
     "resourceManagerEndpointUrl": "https://management.azure.com/",
@@ -152,6 +151,10 @@ The GitHub Actions workflow automates the deployment of the Node.js application 
     "managementEndpointUrl": "https://management.core.windows.net/"
     }
     ```
+
+     Replace `<SERVICE_PRINCIPAL_NAME>` with the name of the service principal you want to create.
+     Replace `<YourSubscriptionID>` with your actual Azure subscription ID.
+
 
 4. Add the output from the service principal to GitHub secrets as `AZURE_CREDENTIALS`:
 
@@ -209,11 +212,13 @@ The GitHub Actions workflow automates the deployment of the Node.js application 
 2. Retrieve the external IP for Azure:
 
     ```bash
-    az aks get-credentials --resource-group XYZResourceGroup --name XYZCluster
+    az aks get-credentials --resource-group ABCResourceGroup --name ABCCluster
     kubectl get service poc-abc-service --output jsonpath="{.status.loadBalancer.ingress[0].ip}"
 
     <EXTERNAL_IP>
     ```
+
+    Note that `ABCResourceGroup` and `ABCCluster` are not placeholders. These are actual resources created by Terraform.
 
 3. Access the application in your browser via `http://EXTERNAL_IP/`
 
