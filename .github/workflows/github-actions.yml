@@ -6,11 +6,6 @@ on:
     - main
 
 jobs:
-  azure-setup:
-    runs-on: ubuntu-latest
-
-    steps:
-
 
   build-deploy:
     runs-on: ubuntu-latest
