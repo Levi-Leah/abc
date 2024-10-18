@@ -83,13 +83,15 @@ The GitHub Actions workflow automates the deployment of the Node.js application 
 
 1. Create a new public repository on [Github](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-new-repository).
 
-2. Navigate to the `valeeva.levi` directory:
+2. Extract the `valeeva.levi.tar` file and navigate to the `valeeva.levi` directory:
 
     ```bash
+    mkdir valeeva.levi
+    tar -xvf valeeva.levi.tar -C valeeva.levi
     cd valeeva.levi
     ```
 
-3. Initiate the Git repository and add the GitHub remote:
+4. Initiate the Git repository and add the GitHub remote:
 
     ```bash
     git init
