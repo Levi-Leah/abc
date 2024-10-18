@@ -9,6 +9,9 @@
       - [GitHub Workflow](#github-workflow)
     - [Prerequisites](#prerequisites)
     - [Deployment](#deployment)
+      - [Authenticate](#authenticate)
+      - [Create a GitHub repository](#create-a-github-repository)
+      - [Add GitHub secrets](#add-github-secrets)
   - [Testing](#testing)
     - [Testing the application remotely](#testing-the-application-remotely)
     - [Testing the application locally](#testing-the-application-locally)
@@ -21,7 +24,7 @@ This project is a Proof of Concept (POC) to demonstrate the deployment of a Node
 
 ### Repository structure
 
-````bash
+```bash
 # Repository structure
 .
 ├── app/                    # Contains the Node.js application
@@ -31,7 +34,7 @@ This project is a Proof of Concept (POC) to demonstrate the deployment of a Node
 ├── helm-config/            # Contains Helm chart for deploying the Node.js app on Kubernetes
 ├── README.md
 └── terraform-config/       # Contains Terraform files for provisioning Azure infrastructure
-````
+```
 
 #### Node.js application
 
@@ -52,15 +55,53 @@ The Helm chart defines the deployment and service configuration for the containe
 
 #### GitHub Workflow
 
-The GitHub Actions workflow automates the deployment of the Node.js application to AKS. It sets up Azure resources using Terraform, including storage accounts and resource groups if they do not already exist. The workflow then deploys Kubernetes resources via Helm, ensuring the application is properly configured on the AKS cluster. After deployment, it retrieves the external IP address of the application and verifies its status by checking the service's readiness and accessibility.
+The GitHub Actions workflow automates the deployment of the Node.js application to AKS. It sets up Azure resources using Terraform, including storage accounts and resource groups if they do not already exist. The workflow then deploys Kubernetes resources via Helm, ensuring the application is properly configured on the AKS cluster.
 
 ### Prerequisites
 
 1. [Microsoft Azure account](https://azure.microsoft.com/en-us/get-started/azure-portal)
-
-2. [AzureCLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli#install) installed.
+2. Install [AzureCLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli#install).
+3. Install [GitHub CLI](https://cli.github.com/)
 
 ### Deployment
+
+#### Authenticate
+
+1. Login with Azure CLI:
+
+    ```bash
+    az login
+    ```
+
+2. Login with GutHub CLI:
+
+    ```bash
+    gh auth login
+    ```
+
+#### Create a GitHub repository
+
+1. Create a new public repository on [Github](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-new-repository).
+
+2. Navigate to the `valeeva.levi` directory:
+
+    ```bash
+    cd valeeva
+    ```
+
+3. Initiate the Git repository and add the GitHub remote:
+
+    ```bash
+    git init
+    git add .
+    git commit -m "Initial commit"
+    git branch -M main
+    git remote add origin git@github.com:<GITHUB_USERNAME>/<REPOSITORY_NAME>.git
+    ```
+
+    Replace `<GITHUB_USERNAME>` with your actual GitHub username. Replace `<REPOSITORY_NAME>` with the name of the newly created repository.
+
+#### Add GitHub secrets
 
 > ⚠️ Important Note
 >
@@ -77,30 +118,32 @@ The GitHub Actions workflow automates the deployment of the Node.js application 
 >
 > Ensure that all secrets are created in your GitHub repository with the exact names specified. The workflow relies on these names to properly access and utilize the secrets during the deployment process.
 
-1. Create a new public repository on [Github](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-new-repository).
+1. Retrieve your Azure subscription ID:
 
-
-2. Login to Azure abd retrieve your subscription ID:
-
-    ````bash
-    az login
+    ```bash
     az account show --query id --output tsv
 
-    XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
-    ````
+    <YourSubscriptionID>>
+    ```
 
-4. Add the Azure subscription ID to [GitHub secrets](https://docs.github.com/ru/actions/security-for-github-actions/security-guides/using-secrets-in-github-actions#creating-secrets-for-a-repository) as `AZURE_SUBSCRIPTION_ID`.
+2. Add the Azure subscription ID to GitHub secrets as `AZURE_SUBSCRIPTION_ID`:
 
-5. Create a service principal:
+    ```bash
+    gh secret set AZURE_SUBSCRIPTION_ID --body "<YourSubscriptionID>"
+    ```
 
-    ````bash
-    az ad sp create-for-rbac --name "SERVICE_PRINCIPAL_NAME" --role Contributor --scopes /subscriptions/AZURE_SUBSCRIPTION_ID --sdk-auth
+    Replace `<YourSubscriptionID>` with your actual Azure subscription ID.
+
+3. Create a service principal:
+
+    ```bash
+    az ad sp create-for-rbac --name "SERVICE_PRINCIPAL_NAME" --role Contributor --scopes /subscriptions/<AZURE_SUBSCRIPTION_ID> --sdk-auth
 
     {
-    "clientId": "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX",
-    "clientSecret": "XXXXX~XXXX-XXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-    "subscriptionId": "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXX",
-    "tenantId": "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX",
+    "clientId": "<YourClientID>",
+    "clientSecret": "<YourClientSecret>",
+    "subscriptionId": "<YourSubscriptionID>>",
+    "tenantId": "YourTenantID",
     "activeDirectoryEndpointUrl": "https://login.microsoftonline.com",
     "resourceManagerEndpointUrl": "https://management.azure.com/",
     "activeDirectoryGraphResourceId": "https://graph.windows.net/",
@@ -108,58 +151,84 @@ The GitHub Actions workflow automates the deployment of the Node.js application 
     "galleryEndpointUrl": "https://gallery.azure.com/",
     "managementEndpointUrl": "https://management.core.windows.net/"
     }
-    ````
+    ```
 
-6. Add the output from the service principal creation to [GitHub secrets](https://docs.github.com/ru/actions/security-for-github-actions/security-guides/using-secrets-in-github-actions#creating-secrets-for-a-repository) as `AZURE_CREDENTIALS`.
+4. Add the output from the service principal to GitHub secrets as `AZURE_CREDENTIALS`:
 
-7. Add the `clientId` to [GitHub secrets](https://docs.github.com/ru/actions/security-for-github-actions/security-guides/using-secrets-in-github-actions#creating-secrets-for-a-repository) as `AZURE_CLIENT_ID`.
+    ```bash
+    gh secret set AZURE_CREDENTIALS --body '{
+    "clientId": "<YourClientID>",
+    "clientSecret": "<YourClientSecret>",
+    "subscriptionId": "<YourSubscriptionID>>",
+    "tenantId": "YourTenantID",
+    "activeDirectoryEndpointUrl": "https://login.microsoftonline.com",
+    "resourceManagerEndpointUrl": "https://management.azure.com/",
+    "activeDirectoryGraphResourceId": "https://graph.windows.net/",
+    "sqlManagementEndpointUrl": "https://management.core.windows.net:XXXX/",
+    "galleryEndpointUrl": "https://gallery.azure.com/",
+    "managementEndpointUrl": "https://management.core.windows.net/"
+    }'
+    ```
 
-8. Add `clientSecret` to [GitHub secrets](https://docs.github.com/ru/actions/security-for-github-actions/security-guides/using-secrets-in-github-actions#creating-secrets-for-a-repository) as `AZURE_CLIENT_SECRET`.
+5. Add the `clientId` to GitHub secrets as `AZURE_CLIENT_ID`.
 
-9. Add the `tenantId` to [GitHub secrets](https://docs.github.com/ru/actions/security-for-github-actions/security-guides/using-secrets-in-github-actions#creating-secrets-for-a-repository) as `AZURE_TENANT_ID`.
+    ```bash
+    gh secret set AZURE_CLIENT_ID --body "<YourClientID>"
+    ```
 
-10. Navigate to the `valeeva.levi` directory:
+    Replace `<YourClientID>` with your actual Azure client ID.
 
-    ````bash
-    cd valeeva.levi
-    ````
+6. Add `clientSecret` to GitHub secrets as `AZURE_CLIENT_SECRET`.
 
-11. Add locally hosted code to GitHub:
+    ```bash
+    gh secret set AZURE_CLIENT_SECRET --body "<YourClientSecret>"
+    ```
 
-    ````bash
-    git init
-    git add .
-    git commit -m "Initial commit"
-    git branch -M main
-    git remote add origin git@github.com:GIT_USERNAME/REPOSITORY_NAME.git
+    Replace `<YourClientSecret>` with your actual Azure client secret.
+
+7. Add the `tenantId` to GitHub secrets as `AZURE_TENANT_ID`.
+
+    ```bash
+    gh secret set AZURE_TENANT_ID --body "<YourTenantID>"
+    ```
+
+    Replace `<YourTenantID>` with your actual Azure tenant secret.
+
+1. Push the locally hosted code to GitHub:
+
+    ```bash
     git push -u origin main
-    ````
+    ```
 
 ## Testing
 
 ### Testing the application remotely
 
-1. Once the CI/CD pipeline has successfully completed, retreive the external IP for the application:
+1. Wait for the CI/CD pipeline to successfully complete.
+
+2. Retrieve the external IP for Azure:
 
     ```bash
     az aks get-credentials --resource-group XYZResourceGroup --name XYZCluster
     kubectl get service poc-abc-service --output jsonpath="{.status.loadBalancer.ingress[0].ip}"
 
-    XX.XXX.XX.XX
-    ````
+    <EXTERNAL_IP>
+    ```
 
-2. Access the application in your browser via `http://XX.XXX.XX.XX/`
+3. Access the application in your browser via `http://EXTERNAL_IP/`
+
+    Replace `<EXTERNAL_IP>` with your actual external IP.
 
 ### Testing the application locally
 
 1. Install the dependencies and run the application:
 
-````bash
-cd app/
-npm install
-node app.js
+    ```bash
+    cd app/
+    npm install
+    node app.js
 
-App is running on http://localhost:3000
-````
+    App is running on http://localhost:3000
+    ```
 
 1. Access the application in your browser via `http://localhost:3000`
