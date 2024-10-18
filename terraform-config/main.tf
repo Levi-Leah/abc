@@ -2,9 +2,9 @@
 # If value names change, they must be manually updated in .storage-check.sh
 terraform {
     backend "azurerm" {
-        resource_group_name   = "XYZStorageResourceGroup"
-        storage_account_name  = "xyzstorageaccountunique6"
-        container_name        = "xyztoragecontainer"
+        resource_group_name   = "ABCStorageResourceGroup"
+        storage_account_name  = "abcstorageaccountunique6"
+        container_name        = "abctoragecontainer"
         key                   = "terraform.tfstate"
     }
 }
