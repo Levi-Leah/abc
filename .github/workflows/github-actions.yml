@@ -6,15 +6,24 @@ on:
     - main
 
 jobs:
+  azure-setup:
+    runs-on: ubuntu-latest
+
+    steps:
+
+
   build-deploy:
     runs-on: ubuntu-latest
 
-    # Declare environment variables once for the entire job
+    Declare environment variables once for the entire job
     env:
-      ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-      ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-      ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-      ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      # ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      # ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+      # ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      # ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      APP_NAME: "poc-abc"
+      TF_DIR: "./terraform-config"
+      HELM_DIR: "./helm-config"
 
     steps:
     - name: Checkout repository
@@ -37,7 +46,7 @@ jobs:
         echo "STORAGE_CONTAINER_NAME=$STORAGE_CONTAINER_NAME" >> $GITHUB_ENV
         echo "STORAGE_LOCATION=$STORAGE_LOCATION" >> $GITHUB_ENV
 
-      working-directory: ./terraform-config
+      working-directory: ${{  env.TF_DIR }}
 
     - name: Check if Storage Account Exists
       run: |
@@ -58,41 +67,51 @@ jobs:
         terraform_version: 'latest'
         terraform_wrapper: false
 
-    - name: Terraform Init
-      run: terraform init
-      working-directory: ./terraform-config
-
-    - name: Terraform Plan
-      run: terraform plan
-      working-directory: ./terraform-config
-
-    - name: Terraform Apply
-      run: terraform apply -auto-approve
-      working-directory: ./terraform-config
+    - name: Deploy Terraform
+      run: |
+        terraform init
+        terraform plan
+        terraform apply -auto-approve
+      working-directory: ${{  env.TF_DIR }}
 
     - name: Get Terraform Output
       run: |
         echo "RESOURCE_GROUP_NAME=$(terraform output resource_group_name | sed 's/"//g')" >> $GITHUB_ENV
         echo "AKS_CLUSTER_NAME=$(terraform output aks_cluster_name | sed 's/"//g')" >> $GITHUB_ENV
-      working-directory: ./terraform-config
+      working-directory: ${{  env.TF_DIR }}
 
-    - name: Helm
+    - name: Set up Helm
       uses: azure/setup-helm@v4
       with:
         version: latest
 
     - name: Deploy Helm
       run: |
-        chmod 600 ./terraform-config/kubeconfig
-        helm upgrade --install poc-abc ./helm-config --kubeconfig ./terraform-config/kubeconfig
+        chmod 600 ${{  env.TF_DIR }}/kubeconfig
+        helm upgrade --install $APP_NAME ${{ env.HELM_DIR }} --kubeconfig ${{  env.TF_DIR }}/kubeconfig
 
     - name: Get External IP
       run: |
         az aks get-credentials --resource-group ${{ env.RESOURCE_GROUP_NAME }} --name ${{ env.AKS_CLUSTER_NAME  }}
 
-        kubectl get services --output jsonpath="{.items[*].status.loadBalancer.ingress[*].ip}"
-        echo "EXTERNAL_IP=$(kubectl get services --output jsonpath="{.items[*].status.loadBalancer.ingress[*].ip}")" >> $GITHUB_ENV
+        kubectl wait --for=condition=ready service my-app-service --timeout=150s
+
+        EXTERNAL_IP=$(kubectl get service $APP_NAME --output jsonpath="{.status.loadBalancer.ingress[0].ip}")
+        echo "::add-mask::$EXTERNAL_IP" >> $GITHUB_ENV
+
+        if [ -n "$EXTERNAL_IP" ]; then
+          echo "EXTERNAL_IP=$EXTERNAL_IP" >> $GITHUB_ENV
+        else
+          echo "Failed to retrieve External IP."
+          exit 1
+        fi
 
     - name: Check if App is Running
       run: |
-        curl -f http://${{ env.EXTERNAL_IP }}/ || exit 1
+        STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://$EXTERNAL_IP)
+
+        if [ "$STATUS" -ne 200 ]; then
+            echo "App is not running. Status code: $STATUS"
+            exit 1
+        fi
+            echo "App is running. Status code: $STATUS"
