@@ -15,7 +15,6 @@ jobs:
   build-deploy:
     runs-on: ubuntu-latest
 
-    Declare environment variables once for the entire job
     env:
       # ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
       # ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
