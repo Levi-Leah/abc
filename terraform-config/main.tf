@@ -1,9 +1,9 @@
 # Configure the backend storage
-# If value names change, they must be manually updated in .github/workflows/github-actions.yml
+# If value names change, they must be manually updated in .storage-check.sh
 terraform {
     backend "azurerm" {
         resource_group_name   = "XYZStorageResourceGroup"
-        storage_account_name  = "xyzstorageaccountunique4"
+        storage_account_name  = "xyzstorageaccountunique5"
         container_name        = "xyztoragecontainer"
         key                   = "terraform.tfstate"
     }

@@ -9,78 +9,54 @@ jobs:
   build-deploy:
     runs-on: ubuntu-latest
 
-    env: # Declare environment variables once for the entire job
+    # Declare environment variables once for the entire job
+    env:
       ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
       ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
       ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
       ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
-      STORAGE_RESOURCE_GROUP: "XYZStorageResourceGroup"
-      STORAGE_ACCOUNT: "xyzstorageaccountunique4"
-      STORAGE_CONTAINER: "xyztoragecontainer"
-      STATE_FILE: "terraform.tfstate"
-      STORAGE_LOCATION: "Japan West"
-      APP_NAME: ${{ github.event.repository.name }}
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    - name: Log in to Docker Hub
-      uses: docker/login-action@v3
-      with:
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_TOKEN }}
-
-    - name: Check if Docker image exists
-      run: |
-        IMAGE="${{ secrets.DOCKER_USERNAME }}/$APP_NAME:latest"
-
-        if docker manifest inspect "$IMAGE" > /dev/null 2>&1; then
-          echo "Docker image already exists."
-          echo "docker_image_exists=true" >> $GITHUB_ENV
-        else
-          echo "Docker image does not exist."
-          echo "docker_image_exists=false" >> $GITHUB_ENV
-        fi
-
-    - name: Build and push Docker image
-      if: ${{ env.docker_image_exists == 'false' }}
-      run: |
-        docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:latest .
-        docker push ${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:latest
-
     - name: Set up Azure CLI
       uses: azure/login@v2
       with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
+        creds: ${{  secrets.AZURE_CREDENTIALS  }}
+
+    - name: Get Backend Values
+      run: |
+        STORAGE_RESOURCE_GROUP_NAME=$(sed -n '/backend "azurerm" {/,/}/p' main.tf | awk -F= '/resource_group_name/{gsub(/[ "]/, "", $2); print $2}')
+        STORAGE_ACCOUNT_NAME=$(sed -n '/backend "azurerm" {/,/}/p' main.tf | awk -F= '/storage_account_name/{gsub(/[ "]/, "", $2); print $2}')
+        STORAGE_CONTAINER_NAME=$(sed -n '/backend "azurerm" {/,/}/p' main.tf | awk -F= '/container_name/{gsub(/[ "]/, "", $2); print $2}')
+        STORAGE_LOCATION=$(sed -n '/variable "location" {/,/}/p' variables.tf | awk -F= '/default/{gsub(/[ "]/, "", $2); print $2}')
+
+        echo "STORAGE_RESOURCE_GROUP_NAME=$STORAGE_RESOURCE_GROUP_NAME" >> $GITHUB_ENV
+        echo "STORAGE_ACCOUNT_NAME=$STORAGE_ACCOUNT_NAME" >> $GITHUB_ENV
+        echo "STORAGE_CONTAINER_NAME=$STORAGE_CONTAINER_NAME" >> $GITHUB_ENV
+        echo "STORAGE_LOCATION=$STORAGE_LOCATION" >> $GITHUB_ENV
+
+      working-directory: ./terraform-config
+
+    - name: Check if Storage Account Exists
+      run: |
+
+        if [ $(az group exists --resource-group ${{ env.STORAGE_RESOURCE_GROUP_NAME }}) = false ]; then
+          echo "${{ env.STORAGE_RESOURCE_GROUP_NAME }} does not exist. Creating..."
+
+          az group create --name "${{ env.STORAGE_RESOURCE_GROUP_NAME }}" --location "${{ env.STORAGE_LOCATION }}"
+          az storage account create --name "${{ env.STORAGE_ACCOUNT_NAME }}" --resource-group ${{ env.STORAGE_RESOURCE_GROUP_NAME }} --location "${{ env.STORAGE_LOCATION }}" --sku Standard_LRS
+          az storage container create --name ${{ env.STORAGE_CONTAINER_NAME }} --account-name ${{ env.STORAGE_ACCOUNT_NAME }}
+        else
+            echo "${{ env.STORAGE_RESOURCE_GROUP_NAME }} exists. Skipping creation..."
+        fi
 
     - name: Set up Terraform
       uses: hashicorp/setup-terraform@v3
       with:
         terraform_version: 'latest'
         terraform_wrapper: false
-
-    - name: Check if State File Exists
-      id: check_account
-      run: |
-
-        TF_STATE=$(az storage blob exists --container-name $STORAGE_CONTAINER --name $STATE_FILE --account-name $STORAGE_ACCOUNT --query "exists")
-
-        if [[ "${{ env.TF_STATE }}" == "false" ]]; then
-          echo "State file does not exist."
-          echo "STORAGE_EXISTS=false" >> $GITHUB_ENV
-        else
-          echo "State file exists."
-          echo "STORAGE_EXISTS=true" >> $GITHUB_ENV
-        fi
-
-    - name: Create resource group, account, and container for state storage
-      if: ${{ env.STORAGE_EXISTS == 'false' }}
-      run: |
-        az group create --name $STORAGE_RESOURCE_GROUP --location $STORAGE_LOCATION
-        az storage account create --name $STORAGE_ACCOUNT --resource-group $STORAGE_RESOURCE_GROUP --location $STORAGE_LOCATION --sku Standard_LRS
-        az storage container create --name $STORAGE_CONTAINER --account-name $STORAGE_ACCOUNT
 
     - name: Terraform Init
       run: terraform init
@@ -96,8 +72,8 @@ jobs:
 
     - name: Get Terraform Output
       run: |
-          echo "RESOURCE_GROUP_NAME=$(terraform output resource_group_name | sed 's/"//g')" >> $GITHUB_ENV
-          echo "AKS_CLUSTER_NAME=$(terraform output aks_cluster_name | sed 's/"//g')" >> $GITHUB_ENV
+        echo "RESOURCE_GROUP_NAME=$(terraform output resource_group_name | sed 's/"//g')" >> $GITHUB_ENV
+        echo "AKS_CLUSTER_NAME=$(terraform output aks_cluster_name | sed 's/"//g')" >> $GITHUB_ENV
       working-directory: ./terraform-config
 
     - name: Helm
@@ -108,12 +84,12 @@ jobs:
     - name: Deploy Helm
       run: |
         chmod 600 ./terraform-config/kubeconfig
-        helm upgrade --install ${{ env.APP_NAME }} ./helm-config --set Image.Repository=${{ secrets.DOCKER_USERNAME }} --kubeconfig ./terraform-config/kubeconfig
+        helm upgrade --install poc-abc ./helm-config --kubeconfig ./terraform-config/kubeconfig
 
     - name: Get External IP
       run: |
         az aks get-credentials --resource-group ${{ env.RESOURCE_GROUP_NAME }} --name ${{ env.AKS_CLUSTER_NAME  }}
-        
+
         kubectl get services --output jsonpath="{.items[*].status.loadBalancer.ingress[*].ip}"
         echo "EXTERNAL_IP=$(kubectl get services --output jsonpath="{.items[*].status.loadBalancer.ingress[*].ip}")" >> $GITHUB_ENV
 

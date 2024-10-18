@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: {{ .Release.Name }}
-        image: "{{ .Values.Image.Repository }}/{{ .Release.Name }}:latest"
+        image: "levileah/poc-abc:latest"
         ports:
         - containerPort: 3000
     env:
